@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Filmarchiv</title>
+<meta name="description" content="Mein Film- und Serienarchiv: suchen, Infos lesen, sehen wo es läuft und als gesehen markieren.">
+<meta name="theme-color" content="#0f0f14">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/svg+xml" href="icons/icon.svg">
+<link rel="apple-touch-icon" href="icons/icon-180.png">
+<meta name="referrer" content="no-referrer">
+<style>
+:root{--hg:#0f0f14;--karte:#191920;--karte2:#22222b;--rand:#2e2e38;--text:#f4f4f7;--leise:#9d9ba8;--akzent:#e94560;--gruen:#5fd39a;--gelb:#f5c518;--r:16px}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--hg);color:var(--text);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;line-height:1.45}
+body{padding:env(safe-area-inset-top) env(safe-area-inset-right) calc(78px + env(safe-area-inset-bottom)) env(safe-area-inset-left)}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+a{color:inherit}
+.wrap{max-width:900px;margin:0 auto;padding:14px 16px}
+header.kopf{display:flex;align-items:center;gap:11px;padding:6px 0 12px}
+.logo{width:38px;height:38px;border-radius:11px;background:linear-gradient(140deg,#e94560,#8a1c3a);display:grid;place-items:center;font-size:20px}
+.kopf h1{font-size:19px;margin:0;font-weight:800;letter-spacing:-.02em}
+.kopf small{display:block;color:var(--leise);font-size:12px;font-weight:500}
+.suche{display:flex;align-items:center;gap:8px;background:var(--karte2);border:1px solid var(--rand);border-radius:14px;padding:0 10px 0 14px;min-height:52px}
+.suche:focus-within{border-color:var(--akzent)}
+.suche input{flex:1;border:0;background:transparent;outline:0;font-size:17px;min-width:0}
+.suche button{border:0;background:#33333d;border-radius:9px;width:32px;height:32px;font-size:18px;display:none}
+.suche button.an{display:block}
+.hinweisbox{margin:12px 0;padding:12px 14px;border-radius:12px;background:#2a2230;border:1px solid #4a3550;font-size:13px;color:#ddd}
+.hinweisbox b{color:#fff}
+.hinweisbox button{margin-top:8px}
+h2{font-size:17px;margin:22px 0 10px;letter-spacing:-.01em}
+.raster{display:grid;grid-template-columns:repeat(auto-fill,minmax(112px,1fr));gap:12px}
+.kachel{background:none;border:0;padding:0;text-align:left;position:relative}
+.poster{width:100%;aspect-ratio:2/3;border-radius:12px;background:var(--karte2) center/cover no-repeat;display:grid;place-items:center;color:var(--leise);font-size:28px;overflow:hidden;border:1px solid var(--rand)}
+.poster img{width:100%;height:100%;object-fit:cover;display:block}
+.kachel .t{font-size:13px;font-weight:650;margin-top:6px;line-height:1.25;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.kachel .j{font-size:11px;color:var(--leise)}
+.marke{position:absolute;top:6px;left:6px;font-size:10px;font-weight:800;padding:3px 7px;border-radius:7px;background:var(--gruen);color:#07261a}
+.marke.m{background:#7aa7ff;color:#0b1a3a}
+.liste{display:flex;flex-direction:column;gap:8px}
+.zeile{display:flex;gap:12px;align-items:center;background:var(--karte);border:1px solid var(--rand);border-radius:14px;padding:9px;text-align:left;width:100%}
+.zeile .mini{width:46px;flex:none}
+.zeile .mini .poster{border-radius:8px;font-size:16px}
+.zeile .mitte{flex:1;min-width:0}
+.zeile .t{font-weight:700;font-size:14px}
+.zeile .u{font-size:12px;color:var(--leise);margin-top:2px}
+.zeile .d{font-size:12px;font-weight:700;white-space:nowrap;color:#ddd}
+.filter{display:flex;gap:7px;overflow-x:auto;padding:2px 0 10px;scrollbar-width:none}
+.chip{flex:none;border:1px solid var(--rand);background:var(--karte);border-radius:999px;padding:7px 12px;font-size:12px}
+.chip.an{background:var(--akzent);border-color:var(--akzent);color:#fff;font-weight:700}
+.leer{color:var(--leise);text-align:center;padding:36px 10px;font-size:14px}
+.zahlen{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:4px 0 14px}
+.zahl{background:var(--karte);border:1px solid var(--rand);border-radius:12px;padding:10px 12px}
+.zahl b{display:block;font-size:20px}
+.zahl span{font-size:11px;color:var(--leise)}
+nav.unten{position:fixed;left:0;right:0;bottom:0;background:rgba(18,18,24,.96);backdrop-filter:blur(10px);border-top:1px solid var(--rand);display:flex;justify-content:center;padding-bottom:env(safe-area-inset-bottom);z-index:5}
+nav.unten button{flex:1;max-width:180px;border:0;background:none;padding:9px 4px 8px;color:var(--leise);font-size:11px;display:flex;flex-direction:column;align-items:center;gap:2px}
+nav.unten button span{font-size:21px;line-height:1}
+nav.unten button.an{color:var(--text);font-weight:700}
+.seite{display:none}.seite.an{display:block}
+/* Detail */
+#detail{position:fixed;inset:0;background:var(--hg);z-index:10;overflow-y:auto;display:none}
+#detail.an{display:block}
+.hero{position:relative;min-height:220px;background:#1a1a22 center/cover no-repeat}
+.hero::after{content:"";position:absolute;inset:0;background:linear-gradient(to bottom,rgba(15,15,20,.25),var(--hg))}
+.zurueck{position:fixed;top:calc(10px + env(safe-area-inset-top));left:12px;z-index:12;border:0;background:rgba(0,0,0,.6);border-radius:999px;width:42px;height:42px;font-size:22px;color:#fff}
+.dkopf{position:relative;z-index:1;display:flex;gap:16px;margin-top:-120px;padding:0 16px}
+.dkopf .dposter{width:118px;flex:none}
+.dkopf .info{align-self:flex-end;min-width:0}
+.dkopf h3{margin:0;font-size:22px;line-height:1.15;letter-spacing:-.02em}
+.dkopf .orig{font-size:12px;color:var(--leise);margin-top:3px}
+.meta{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.meta span{font-size:11px;background:var(--karte2);border:1px solid var(--rand);border-radius:7px;padding:3px 7px}
+.wertungen{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+.wert{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:750;text-decoration:none}
+.imdb{background:var(--gelb);color:#111;font-weight:900;font-size:11px;border-radius:4px;padding:1px 5px}
+.tmdbm{background:#01b4e4;color:#022;font-weight:900;font-size:11px;border-radius:4px;padding:1px 5px}
+.dinhalt{padding:4px 16px 40px;max-width:900px;margin:0 auto}
+.status{margin:18px 0 6px;padding:13px 14px;border-radius:14px;background:var(--karte);border:1px solid var(--rand);font-size:14px}
+.status.ja{background:#15261e;border-color:#2f5c45}
+.status b{display:block;font-size:15px}
+.knoepfe{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}
+.btn{border:1px solid var(--akzent);background:var(--akzent);color:#fff;border-radius:12px;padding:11px 16px;font-weight:750;font-size:14px;text-decoration:none;display:inline-flex;align-items:center;gap:6px}
+.btn.zwei{background:var(--karte2);border-color:var(--rand);color:var(--text)}
+.btn.klein{padding:7px 12px;font-size:12px}
+.text{font-size:15px;color:#dcdbe2}
+.abschnitt{margin-top:22px}
+.abschnitt h4{margin:0 0 9px;font-size:15px}
+.anbieter{display:flex;flex-direction:column;gap:10px}
+.anbieter .gruppe small{display:block;font-size:11px;color:var(--leise);margin-bottom:5px;text-transform:uppercase;letter-spacing:.06em}
+.logos{display:flex;flex-wrap:wrap;gap:8px}
+.logos a{display:flex;align-items:center;gap:7px;background:var(--karte);border:1px solid var(--rand);border-radius:10px;padding:5px 9px 5px 5px;font-size:12px;text-decoration:none}
+.logos img{width:28px;height:28px;border-radius:7px}
+.quelle{font-size:11px;color:var(--leise);margin-top:8px}
+.besetzung{display:flex;gap:10px;overflow-x:auto;padding-bottom:6px}
+.person{flex:none;width:84px;font-size:11px}
+.person .bild{width:84px;height:84px;border-radius:50%;background:var(--karte2) center/cover;display:grid;place-items:center;color:var(--leise);font-size:24px;margin-bottom:5px;border:1px solid var(--rand)}
+.person b{display:block;font-size:12px;line-height:1.2}
+.person span{color:var(--leise)}
+.fakten{display:grid;grid-template-columns:auto 1fr;gap:5px 14px;font-size:13px}
+.fakten dt{color:var(--leise)}
+.fakten dd{margin:0}
+.laden{color:var(--leise);padding:30px 0;text-align:center}
+/* Dialog */
+.schleier{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:20;display:none;align-items:flex-end;justify-content:center}
+.schleier.an{display:flex}
+.dialog{background:#1b1b22;border:1px solid var(--rand);border-radius:20px 20px 0 0;width:100%;max-width:520px;padding:18px 18px calc(18px + env(safe-area-inset-bottom));max-height:92vh;overflow-y:auto}
+.dialog h3{margin:0 0 14px;font-size:18px}
+.feld{margin-bottom:13px}
+.feld label{display:block;font-size:12px;color:var(--leise);margin-bottom:5px}
+.feld input,.feld select,.feld textarea{width:100%;background:var(--karte2);border:1px solid var(--rand);border-radius:11px;padding:11px 12px;font-size:16px}
+.sterne{display:flex;gap:4px}
+.sterne button{border:0;background:none;font-size:28px;color:#555;padding:0 2px}
+.sterne button.an{color:var(--gelb)}
+.reihe{display:flex;gap:8px;justify-content:flex-end;margin-top:6px}
+.toast{position:fixed;left:50%;bottom:calc(90px + env(safe-area-inset-bottom));transform:translateX(-50%);background:#fff;color:#111;padding:9px 16px;border-radius:999px;font-size:14px;font-weight:600;opacity:0;transition:.2s;pointer-events:none;z-index:30;white-space:nowrap}
+.toast.an{opacity:1}
+.einst p{font-size:14px;color:#cfcdd6}
+.einst ol{font-size:14px;color:#cfcdd6;padding-left:20px}
+.einst a{color:#ff8fa3}
+.fuss{font-size:11px;color:var(--leise);margin-top:26px;line-height:1.6}
+@media(min-width:640px){.raster{grid-template-columns:repeat(auto-fill,minmax(140px,1fr))}.dkopf .dposter{width:170px}.dkopf{margin-top:-150px}.hero{min-height:300px}.dialog{border-radius:20px;margin-bottom:5vh}.schleier{align-items:center}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="kopf">
+    <div class="logo" aria-hidden="true">🎬</div>
+    <div><h1>Filmarchiv</h1><small>Alle Streaming-Dienste · Schon gesehen?</small></div>
+  </header>
+
+  <!-- Seite: Suchen -->
+  <section class="seite an" id="s-suche">
+    <div class="suche">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7.5"/><path d="m20.5 20.5-4.3-4.3"/></svg>
+      <input id="q" type="search" placeholder="Film oder Serie suchen …" autocomplete="off" spellcheck="false" aria-label="Film oder Serie suchen">
+      <button id="q-weg" type="button" aria-label="Suche löschen">×</button>
+    </div>
+    <div id="schluessel-hinweis"></div>
+    <div id="suche-inhalt"></div>
+  </section>
+
+  <!-- Seite: Gesehen -->
+  <section class="seite" id="s-gesehen">
+    <div class="zahlen" id="zahlen"></div>
+    <div class="suche" style="min-height:46px;margin-bottom:10px">
+      <input id="q-gesehen" type="search" placeholder="In „Gesehen“ suchen …" autocomplete="off" aria-label="In Gesehen suchen">
+    </div>
+    <div class="filter" id="filter-gesehen"></div>
+    <div class="liste" id="liste-gesehen"></div>
+  </section>
+
+  <!-- Seite: Merkliste -->
+  <section class="seite" id="s-merken">
+    <h2 style="margin-top:4px">Will ich noch sehen</h2>
+    <div class="liste" id="liste-merken"></div>
+  </section>
+
+  <!-- Seite: Einstellungen -->
+  <section class="seite einst" id="s-einst">
+    <h2 style="margin-top:4px">Filmdatenbank (TMDB)</h2>
+    <p>Mit einem kostenlosen TMDB-Schlüssel bekommst du <b>deutsche Beschreibungen</b>, Altersfreigabe, Trailer und vor allem: <b>bei welchem Streaming-Dienst</b> der Titel in Deutschland läuft. Ohne Schlüssel funktioniert die App auch, die Beschreibungen sind dann aber meistens auf Englisch.</p>
+    <ol>
+      <li>Kostenloses Konto anlegen: <a href="https://www.themoviedb.org/signup" target="_blank" rel="noopener">themoviedb.org/signup</a></li>
+      <li>Schlüssel beantragen (Typ „Developer“, Zweck „Private Nutzung“): <a href="https://www.themoviedb.org/settings/api" target="_blank" rel="noopener">themoviedb.org/settings/api</a></li>
+      <li>Den <b>„API-Lesezugriffstoken“</b> (langer Text) oder den <b>„API-Schlüssel“</b> kopieren und hier einfügen:</li>
+    </ol>
+    <div class="feld"><input id="tmdb-key" type="text" placeholder="Schlüssel hier einfügen" autocomplete="off" spellcheck="false"></div>
+    <div class="knoepfe"><button class="btn" id="key-speichern" type="button">Speichern &amp; testen</button><button class="btn zwei" id="key-loeschen" type="button">Schlüssel entfernen</button></div>
+    <div id="key-status" class="quelle"></div>
+
+    <h2>Sicherung</h2>
+    <p>Deine Liste wird nur auf diesem Gerät gespeichert. Mit einer Sicherungsdatei kannst du sie aufs Handy, Tablet oder einen anderen PC übertragen.</p>
+    <div class="knoepfe">
+      <button class="btn zwei" id="export" type="button">⬇ Sicherung herunterladen</button>
+      <button class="btn zwei" id="import" type="button">⬆ Sicherung einlesen</button>
+      <input type="file" id="import-datei" accept=".json,application/json" hidden>
+    </div>
+    <div class="knoepfe"><button class="btn zwei" id="alles-loeschen" type="button" style="color:#ff8f9b">Alle Einträge löschen</button></div>
+
+    <p class="fuss">Filmdaten: <a href="https://www.themoviedb.org" target="_blank" rel="noopener">TMDB</a> (dieses Produkt nutzt die TMDB-API, ist aber nicht von TMDB unterstützt oder zertifiziert) und Cinemeta. Streaming-Angebote: <a href="https://www.justwatch.com/de" target="_blank" rel="noopener">JustWatch</a>. Privates Projekt, keine offizielle Seite eines Streaming-Dienstes.</p>
+  </section>
+</div>
+
+<nav class="unten" aria-label="Hauptmenü">
+  <button class="an" data-seite="suche" type="button"><span>🔍</span>Suchen</button>
+  <button data-seite="gesehen" type="button"><span>✅</span>Gesehen</button>
+  <button data-seite="merken" type="button"><span>🔖</span>Merkliste</button>
+  <button data-seite="einst" type="button"><span>⚙️</span>Einstellungen</button>
+</nav>
+
+<div id="detail" aria-modal="true" role="dialog">
+  <button class="zurueck" id="detail-zu" type="button" aria-label="Zurück">‹</button>
+  <div id="detail-inhalt"></div>
+</div>
+
+<div class="schleier" id="schleier">
+  <form class="dialog" id="dlg">
+    <h3 id="dlg-titel">Als gesehen markieren</h3>
+    <div class="feld"><label for="f-datum">Wann angeschaut?</label><input type="date" id="f-datum" required></div>
+    <div class="feld"><label for="f-dienst">Wo angeschaut?</label><select id="f-dienst"></select></div>
+    <div class="feld"><label>Meine Bewertung</label><div class="sterne" id="f-sterne"></div></div>
+    <div class="feld"><label for="f-notiz">Notiz (z. B. „bis Staffel 3“)</label><input type="text" id="f-notiz" maxlength="200"></div>
+    <div class="reihe"><button class="btn zwei" type="button" id="dlg-abbrechen">Abbrechen</button><button class="btn" type="submit">Speichern</button></div>
+  </form>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+(() => {
+'use strict';
+const SPEICHER = 'filmarchiv-v1', KEY_SPEICHER = 'filmarchiv-tmdb-key';
+const DIENSTE = ['Netflix','Amazon Prime Video','Disney+','Apple TV+','Paramount+','WOW / Sky','RTL+','Joyn','MagentaTV','ARD / ZDF Mediathek','Crunchyroll','Kino','Fernsehen','DVD / Blu-ray','Sonstiges'];
+const IMG = 'https://image.tmdb.org/t/p/';
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const norm = s => String(s ?? '').toLocaleLowerCase('de').normalize('NFKD').replace(/[̀-ͯ]/g,'').replace(/ß/g,'ss').replace(/[^\p{L}\p{N}]+/gu,' ').trim();
+const heute = () => { const d = new Date(); d.setMinutes(d.getMinutes()-d.getTimezoneOffset()); return d.toISOString().slice(0,10); };
+const datumDE = iso => { if(!iso) return ''; const [y,m,d] = iso.split('-'); return `${d}.${m}.${y}`; };
+const jahr = s => (String(s||'').match(/\d{4}/)||[''])[0];
+
+let tmdbKey = ''; try { tmdbKey = localStorage.getItem(KEY_SPEICHER) || ''; } catch(e) {}
+let liste = []; try { liste = JSON.parse(localStorage.getItem(SPEICHER) || '[]'); if(!Array.isArray(liste)) liste = []; } catch(e) { liste = []; }
+function sichern(){ try { localStorage.setItem(SPEICHER, JSON.stringify(liste)); return true; } catch(e) { toast('Speichern nicht möglich'); return false; } }
+
+function toast(t){ const el=$('toast'); el.textContent=t; el.classList.add('an'); clearTimeout(toast.z); toast.z=setTimeout(()=>el.classList.remove('an'),2200); }
+
+/* ---------- Datenquellen ---------- */
+async function holen(url, opt={}){
+  const ctrl = new AbortController(); const z = setTimeout(()=>ctrl.abort(), 12000);
+  try { const r = await fetch(url, {...opt, signal: ctrl.signal}); if(!r.ok) throw new Error('HTTP '+r.status); return await r.json(); }
+  finally { clearTimeout(z); }
+}
+function tmdb(pfad, params={}){
+  const u = new URL('https://api.themoviedb.org/3' + pfad);
+  u.searchParams.set('language','de-DE');
+  for(const [k,v] of Object.entries(params)) u.searchParams.set(k,v);
+  const opt = {};
+  if(tmdbKey.startsWith('eyJ')) opt.headers = {Authorization:'Bearer '+tmdbKey, accept:'application/json'};
+  else u.searchParams.set('api_key', tmdbKey);
+  return holen(u.toString(), opt);
+}
+const cine = (pfad) => holen('https://v3-cinemeta.strem.io' + pfad);
+
+// Einheitliches Format für Treffer
+function ausTmdb(r){
+  const typ = r.media_type || (r.first_air_date !== undefined ? 'tv' : 'movie');
+  return { key:`tmdb:${typ}:${r.id}`, quelle:'tmdb', id:r.id, typ: typ==='tv'?'serie':'film', titel: r.title || r.name || '', jahr: jahr(r.release_date || r.first_air_date), poster: r.poster_path ? IMG+'w342'+r.poster_path : '' };
+}
+function ausCine(m, typ){
+  return { key:`imdb:${m.id}`, quelle:'cine', id:m.id, imdb:m.id, typ: (m.type||typ)==='series'?'serie':'film', titel:m.name||'', jahr: jahr(m.releaseInfo || m.year), poster: m.poster || '' };
+}
+
+async function suchen(text){
+  if(tmdbKey){
+    const d = await tmdb('/search/multi', {query:text, include_adult:'false'});
+    return (d.results||[]).filter(r=>r.media_type==='movie'||r.media_type==='tv').map(ausTmdb);
+  }
+  const q = encodeURIComponent(text);
+  const [f,s] = await Promise.allSettled([cine(`/catalog/movie/top/search=${q}.json`), cine(`/catalog/series/top/search=${q}.json`)]);
+  const filme = f.status==='fulfilled' ? (f.value.metas||[]).map(m=>ausCine(m,'movie')) : [];
+  const serien = s.status==='fulfilled' ? (s.value.metas||[]).map(m=>ausCine(m,'series')) : [];
+  if(f.status==='rejected' && s.status==='rejected') throw new Error('offline');
+  // abwechselnd mischen, damit Filme und Serien oben stehen
+  const out=[]; for(let i=0;i<Math.max(filme.length,serien.length);i++){ if(filme[i])out.push(filme[i]); if(serien[i])out.push(serien[i]); }
+  return out.filter(x=>/^tt\d+$/.test(x.id));
+}
+
+async function trends(){
+  if(tmdbKey){ const d = await tmdb('/trending/all/week'); return (d.results||[]).filter(r=>r.media_type==='movie'||r.media_type==='tv').map(ausTmdb); }
+  const [f,s] = await Promise.allSettled([cine('/catalog/movie/top.json'), cine('/catalog/series/top.json')]);
+  const a = f.status==='fulfilled' ? (f.value.metas||[]).slice(0,12).map(m=>ausCine(m,'movie')) : [];
+  const b = s.status==='fulfilled' ? (s.value.metas||[]).slice(0,12).map(m=>ausCine(m,'series')) : [];
+  const out=[]; for(let i=0;i<12;i++){ if(a[i])out.push(a[i]); if(b[i])out.push(b[i]); } return out;
+}
+
+async function details(t){
+  if(t.quelle==='tmdb'){
+    const typ = t.typ==='serie' ? 'tv' : 'movie';
+    const extra = typ==='tv' ? 'credits,watch/providers,external_ids,videos,content_ratings' : 'credits,watch/providers,external_ids,videos,release_dates';
+    const d = await tmdb(`/${typ}/${t.id}`, {append_to_response: extra, include_video_language:'de,en'});
+    const imdb = d.external_ids?.imdb_id || d.imdb_id || '';
+    let fsk = '';
+    if(typ==='movie'){ const de=(d.release_dates?.results||[]).find(x=>x.iso_3166_1==='DE'); fsk = de?.release_dates?.map(x=>x.certification).find(Boolean) || ''; }
+    else { fsk = (d.content_ratings?.results||[]).find(x=>x.iso_3166_1==='DE')?.rating || ''; }
+    const videos = d.videos?.results || [];
+    const trailer = videos.find(v=>v.site==='YouTube'&&v.type==='Trailer'&&v.iso_639_1==='de') || videos.find(v=>v.site==='YouTube'&&v.type==='Trailer') || videos.find(v=>v.site==='YouTube');
+    const crew = d.credits?.crew || [];
+    const regie = typ==='tv' ? (d.created_by||[]).map(p=>p.name) : crew.filter(p=>p.job==='Director').map(p=>p.name);
+    const anbieter = d['watch/providers']?.results?.DE || null;
+    const det = {
+      ...t, titel: d.title||d.name||t.titel, original: d.original_title||d.original_name||'', jahr: jahr(d.release_date||d.first_air_date)||t.jahr,
+      poster: d.poster_path ? IMG+'w500'+d.poster_path : t.poster, hintergrund: d.backdrop_path ? IMG+'w1280'+d.backdrop_path : '',
+      beschreibung: d.overview || '', slogan: d.tagline || '', genres: (d.genres||[]).map(g=>g.name),
+      laufzeit: typ==='movie' ? d.runtime : (d.episode_run_time||[])[0], staffeln: d.number_of_seasons, folgen: d.number_of_episodes,
+      status: d.status, fsk, imdb, tmdbWert: d.vote_average, tmdbStimmen: d.vote_count,
+      regie, regieLabel: typ==='tv'?'Erfunden von':'Regie',
+      besetzung: (d.credits?.cast||[]).slice(0,15).map(p=>({name:p.name, rolle:p.character, bild:p.profile_path?IMG+'w185'+p.profile_path:''})),
+      anbieter, trailer: trailer ? 'https://www.youtube.com/watch?v='+trailer.key : '',
+      land: (d.production_countries||[]).map(c=>c.name).join(', '), sender: (d.networks||[]).map(n=>n.name).join(', ')
+    };
+    // IMDb-Bewertung zusätzlich holen
+    if(imdb){ try { const c = await cine(`/meta/${typ==='tv'?'series':'movie'}/${imdb}.json`); det.imdbWert = Number(c.meta?.imdbRating)||null; } catch(e){} }
+    return det;
+  }
+  const typ = t.typ==='serie' ? 'series' : 'movie';
+  const c = await cine(`/meta/${typ}/${t.id}.json`); const m = c.meta || {};
+  return { ...t, titel:m.name||t.titel, jahr: jahr(m.releaseInfo)||t.jahr, poster: m.poster||t.poster, hintergrund: m.background||'',
+    beschreibung: m.description||'', genres: m.genres||m.genre||[], laufzeit: parseInt(m.runtime)||null, imdb: m.id, imdbWert: Number(m.imdbRating)||null,
+    regie: m.director||[], regieLabel:'Regie', besetzung: (m.cast||[]).slice(0,15).map(n=>({name:n, rolle:'', bild:''})),
+    trailer: (m.trailers||[])[0]?.source ? 'https://www.youtube.com/watch?v='+m.trailers[0].source : '', englisch:true, land: m.country||'' };
+}
+
+/* ---------- Eigene Liste ---------- */
+function finde(t){ return liste.find(e => e.key===t.key || (t.imdb && e.imdb===t.imdb)); }
+function speichereEintrag(t, felder){
+  let e = finde(t);
+  if(!e){ e = {key:t.key, quelle:t.quelle, id:t.id, imdb:t.imdb||'', typ:t.typ, titel:t.titel, jahr:t.jahr, poster:t.poster, hinzu:new Date().toISOString()}; liste.push(e); }
+  Object.assign(e, felder, {titel:t.titel||e.titel, jahr:t.jahr||e.jahr, poster:t.poster||e.poster, imdb:t.imdb||e.imdb});
+  sichern(); return e;
+}
+function entferne(t){ const e = finde(t); if(e){ liste = liste.filter(x=>x!==e); sichern(); } }
+
+/* ---------- Darstellung ---------- */
+function posterHTML(url, typ){ return `<div class="poster">${url?`<img src="${esc(url)}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()">`:''}${url?'':(typ==='serie'?'📺':'🎬')}</div>`; }
+function kachel(t){
+  const e = finde(t);
+  const m = e ? (e.status==='gesehen' ? '<span class="marke">✓ Gesehen</span>' : '<span class="marke m">Gemerkt</span>') : '';
+  return `<button class="kachel" type="button" data-t='${esc(JSON.stringify(t))}'>${m}${posterHTML(t.poster,t.typ)}<div class="t">${esc(t.titel)}</div><div class="j">${esc([t.jahr, t.typ==='serie'?'Serie':'Film'].filter(Boolean).join(' · '))}</div></button>`;
+}
+function zeile(e){
+  const u = e.status==='gesehen' ? [e.dienst, e.sterne?'★'.repeat(e.sterne):'', e.notiz].filter(Boolean).join(' · ') : [e.typ==='serie'?'Serie':'Film', e.jahr].filter(Boolean).join(' · ');
+  return `<button class="zeile" type="button" data-t='${esc(JSON.stringify(e))}'><div class="mini">${posterHTML(e.poster,e.typ)}</div><div class="mitte"><div class="t">${esc(e.titel)}${e.jahr&&e.status==='gesehen'?` <span style="color:var(--leise);font-weight:500">(${esc(e.jahr)})</span>`:''}</div><div class="u">${esc(u||'')}</div></div>${e.status==='gesehen'?`<div class="d">${esc(datumDE(e.datum))}</div>`:''}</button>`;
+}
+document.addEventListener('click', ev => { const b = ev.target.closest('[data-t]'); if(b){ try { oeffne(JSON.parse(b.dataset.t)); } catch(e){} } });
+
+function hinweisSchluessel(){
+  $('schluessel-hinweis').innerHTML = tmdbKey ? '' : `<div class="hinweisbox"><b>Tipp:</b> Trage in den Einstellungen deinen kostenlosen TMDB-Schlüssel ein. Dann bekommst du deutsche Beschreibungen und siehst, bei welchem Streaming-Dienst ein Titel läuft.<br><button class="btn klein" type="button" data-zu="einst">Zu den Einstellungen</button></div>`;
+}
+document.addEventListener('click', ev => { const b = ev.target.closest('[data-zu]'); if(b) zeigeSeite(b.dataset.zu); });
+
+let suchNr = 0, suchTimer;
+async function zeigeSuche(){
+  const text = $('q').value.trim(); const nr = ++suchNr; const ziel = $('suche-inhalt');
+  $('q-weg').classList.toggle('an', !!text);
+  if(!text){
+    const zuletzt = liste.filter(e=>e.status==='gesehen').sort((a,b)=>(b.datum||'').localeCompare(a.datum||'')).slice(0,12);
+    ziel.innerHTML = (zuletzt.length?`<h2>Zuletzt gesehen</h2><div class="raster">${zuletzt.map(kachel).join('')}</div>`:'') + `<h2>${tmdbKey?'Diese Woche beliebt':'Beliebte Filme & Serien'}</h2><div class="laden">Wird geladen …</div>`;
+    try { const t = await trends(); if(nr!==suchNr) return; ziel.querySelector('.laden').outerHTML = `<div class="raster">${t.map(kachel).join('')}</div>`; }
+    catch(e){ if(nr!==suchNr) return; const l=ziel.querySelector('.laden'); if(l) l.textContent = tmdbKey ? 'Konnte nicht geladen werden. Stimmt der TMDB-Schlüssel? Bist du online?' : 'Konnte nicht geladen werden. Bist du online?'; }
+    return;
+  }
+  // Zuerst in der eigenen Liste suchen (sofort, auch offline)
+  const n = norm(text);
+  const eigene = liste.filter(e => norm(e.titel).includes(n));
+  let html = '';
+  if(eigene.length){
+    const g = eigene.filter(e=>e.status==='gesehen');
+    html += `<div class="status ja" style="margin-top:12px"><b>${g.length ? `✓ Ja, schon gesehen` : '🔖 Auf deiner Merkliste'}</b>${g.length?g.map(e=>`${esc(e.titel)}: am ${esc(datumDE(e.datum))}${e.dienst?' bei '+esc(e.dienst):''}`).join('<br>'):''}</div>`;
+  }
+  html += `<h2>Suchergebnisse</h2><div class="laden">Suche läuft …</div>`;
+  ziel.innerHTML = html;
+  try {
+    const t = await suchen(text); if(nr!==suchNr) return;
+    ziel.querySelector('.laden').outerHTML = t.length ? `<div class="raster">${t.map(kachel).join('')}</div>` : `<div class="leer">Nichts gefunden. Prüfe die Schreibweise oder versuche den Originaltitel.</div>`;
+  } catch(e){ if(nr!==suchNr) return; const l=ziel.querySelector('.laden'); if(l) l.textContent='Suche fehlgeschlagen. Bist du online?'+(tmdbKey?' Stimmt der TMDB-Schlüssel?':''); }
+}
+$('q').addEventListener('input', ()=>{ clearTimeout(suchTimer); suchTimer = setTimeout(zeigeSuche, 350); });
+$('q-weg').addEventListener('click', ()=>{ $('q').value=''; zeigeSuche(); $('q').focus(); });
+
+let filterDienst = '';
+function zeigeGesehen(){
+  const alle = liste.filter(e=>e.status==='gesehen');
+  const jahrJetzt = String(new Date().getFullYear());
+  $('zahlen').innerHTML = `<div class="zahl"><b>${alle.length}</b><span>Gesehen gesamt</span></div><div class="zahl"><b>${alle.filter(e=>e.typ!=='serie').length} / ${alle.filter(e=>e.typ==='serie').length}</b><span>Filme / Serien</span></div><div class="zahl"><b>${alle.filter(e=>(e.datum||'').startsWith(jahrJetzt)).length}</b><span>Im Jahr ${jahrJetzt}</span></div>`;
+  const dienste = [...new Set(alle.map(e=>e.dienst).filter(Boolean))].sort();
+  if(filterDienst && !dienste.includes(filterDienst)) filterDienst='';
+  $('filter-gesehen').innerHTML = dienste.length>1 ? [`<button class="chip ${filterDienst?'':'an'}" data-dienst="" type="button">Alle</button>`, ...dienste.map(d=>`<button class="chip ${d===filterDienst?'an':''}" data-dienst="${esc(d)}" type="button">${esc(d)}</button>`)].join('') : '';
+  const n = norm($('q-gesehen').value);
+  const sicht = alle.filter(e=>(!filterDienst||e.dienst===filterDienst) && (!n||norm(e.titel).includes(n))).sort((a,b)=>(b.datum||'').localeCompare(a.datum||''));
+  $('liste-gesehen').innerHTML = sicht.length ? sicht.map(zeile).join('') : `<div class="leer">${alle.length?'Keine Treffer.':'Noch nichts als gesehen markiert.<br>Suche einen Titel und tippe auf „Gesehen“.'}</div>`;
+}
+$('filter-gesehen').addEventListener('click', ev=>{ const b=ev.target.closest('[data-dienst]'); if(b){ filterDienst=b.dataset.dienst; zeigeGesehen(); } });
+$('q-gesehen').addEventListener('input', zeigeGesehen);
+
+function zeigeMerken(){
+  const m = liste.filter(e=>e.status==='merken').sort((a,b)=>(b.hinzu||'').localeCompare(a.hinzu||''));
+  $('liste-merken').innerHTML = m.length ? m.map(zeile).join('') : '<div class="leer">Deine Merkliste ist leer.<br>Tippe bei einem Titel auf „Merken“.</div>';
+}
+
+let aktuelleSeite = 'suche';
+function zeigeSeite(s){
+  aktuelleSeite = s;
+  document.querySelectorAll('.seite').forEach(x=>x.classList.toggle('an', x.id==='s-'+s));
+  document.querySelectorAll('nav.unten button').forEach(b=>b.classList.toggle('an', b.dataset.seite===s));
+  if(s==='gesehen') zeigeGesehen(); if(s==='merken') zeigeMerken(); if(s==='einst') $('tmdb-key').value = tmdbKey;
+  if(s==='suche') zeigeSuche();
+  window.scrollTo(0,0);
+}
+document.querySelectorAll('nav.unten button').forEach(b=>b.addEventListener('click',()=>zeigeSeite(b.dataset.seite)));
+
+/* ---------- Detailansicht ---------- */
+let aktuell = null;
+async function oeffne(t){
+  aktuell = t;
+  $('detail').classList.add('an'); document.body.style.overflow='hidden'; $('detail').scrollTop = 0;
+  if(location.hash!=='#titel') history.pushState({detail:1}, '', '#titel');
+  zeichneDetail(t, true);
+  try { const d = await details(t); if(aktuell!==t) return; aktuell = d; zeichneDetail(d, false);
+    const e = finde(d); if(e){ speichereEintrag(d, {}); } // Daten in der Liste auffrischen
+  } catch(err){ if(aktuell!==t) return; const l = $('detail-inhalt').querySelector('.laden'); if(l) l.textContent = 'Infos konnten nicht geladen werden. Bist du online?'; }
+}
+function schliesse(){ $('detail').classList.remove('an'); document.body.style.overflow=''; aktuell=null; zeigeSeite(aktuelleSeite); }
+$('detail-zu').addEventListener('click', ()=>{ if(location.hash==='#titel') history.back(); else schliesse(); });
+window.addEventListener('popstate', ()=>{ if($('schleier').classList.contains('an')) { $('schleier').classList.remove('an'); } if($('detail').classList.contains('an')) schliesse(); });
+
+function anbieterHTML(a, titel){
+  const js = `https://www.justwatch.com/de/Suche?q=${encodeURIComponent(titel)}`;
+  if(!a) return tmdbKey ? `<p class="text" style="font-size:14px">Aktuell bei keinem Streaming-Dienst in Deutschland gefunden.</p><a class="btn zwei klein" href="${js}" target="_blank" rel="noopener">Bei JustWatch prüfen ↗</a>`
+    : `<p class="text" style="font-size:14px">Mit TMDB-Schlüssel (Einstellungen) siehst du hier direkt, wo der Titel läuft.</p><a class="btn zwei klein" href="${js}" target="_blank" rel="noopener">Bei JustWatch nachsehen ↗</a>`;
+  const gruppen = [['flatrate','Im Abo enthalten'],['free','Kostenlos'],['ads','Kostenlos mit Werbung'],['rent','Leihen'],['buy','Kaufen']];
+  const link = a.link || js;
+  const teile = gruppen.filter(([k])=>a[k]?.length).map(([k,name])=>`<div class="gruppe"><small>${name}</small><div class="logos">${a[k].map(p=>`<a href="${esc(link)}" target="_blank" rel="noopener">${p.logo_path?`<img src="${IMG}w92${esc(p.logo_path)}" alt="" referrerpolicy="no-referrer" onerror="this.remove()">`:''}${esc(p.provider_name)}</a>`).join('')}</div></div>`);
+  return `<div class="anbieter">${teile.join('') || '<p class="text" style="font-size:14px">Aktuell bei keinem Dienst in Deutschland.</p>'}</div><div class="quelle">Streaming-Angebote in Deutschland · Quelle: JustWatch</div>`;
+}
+
+function zeichneDetail(d, laden){
+  const e = finde(d);
+  const meta = [d.typ==='serie'?'Serie':'Film', d.jahr, d.laufzeit?`${d.laufzeit} Min.`:'', d.staffeln?`${d.staffeln} Staffel${d.staffeln>1?'n':''}`:'', d.fsk?`FSK ${d.fsk}`:''].filter(Boolean).concat(d.genres||[]);
+  const imdbLink = d.imdb ? `https://www.imdb.com/title/${encodeURIComponent(d.imdb)}/` : `https://www.imdb.com/find/?q=${encodeURIComponent(d.titel)}`;
+  const status = e ? (e.status==='gesehen'
+      ? `<div class="status ja"><b>✓ Gesehen am ${esc(datumDE(e.datum))}</b>${[e.dienst, e.sterne?'Meine Bewertung: '+'★'.repeat(e.sterne):'', e.notiz].filter(Boolean).map(esc).join(' · ')}</div>`
+      : `<div class="status"><b>🔖 Auf deiner Merkliste</b>Noch nicht gesehen.</div>`)
+    : `<div class="status"><b>Noch nicht in deiner Liste</b>Schon angeschaut? Dann markiere den Titel als gesehen.</div>`;
+  const knoepfe = `<div class="knoepfe">
+      <button class="btn" type="button" id="b-gesehen">${e?.status==='gesehen'?'✎ Ändern':'✓ Gesehen'}</button>
+      ${e?.status==='gesehen'?'':`<button class="btn zwei" type="button" id="b-merken">${e?.status==='merken'?'🔖 Gemerkt – entfernen':'🔖 Merken'}</button>`}
+      ${e?.status==='gesehen'?`<button class="btn zwei" type="button" id="b-entfernen">Aus Liste entfernen</button>`:''}
+      ${d.trailer?`<a class="btn zwei" href="${esc(d.trailer)}" target="_blank" rel="noopener">▶ Trailer</a>`:''}
+    </div>`;
+  const fakten = [[d.regieLabel||'Regie', (d.regie||[]).join(', ')], ['Originaltitel', d.original && d.original!==d.titel ? d.original : ''], ['Folgen', d.folgen||''], ['Status', {'Returning Series':'Läuft noch','Ended':'Beendet','Canceled':'Abgesetzt','In Production':'In Produktion','Released':'Erschienen'}[d.status]||''], ['Sender', d.sender||''], ['Land', d.land||'']].filter(x=>x[1]);
+  $('detail-inhalt').innerHTML = `
+    <div class="hero" style="${d.hintergrund?`background-image:url('${esc(d.hintergrund)}')`:''}"></div>
+    <div class="dkopf">
+      <div class="dposter">${posterHTML(d.poster,d.typ)}</div>
+      <div class="info">
+        <h3>${esc(d.titel)}</h3>
+        <div class="meta">${meta.map(m=>`<span>${esc(m)}</span>`).join('')}</div>
+        <div class="wertungen">
+          ${d.imdbWert?`<a class="wert" href="${esc(imdbLink)}" target="_blank" rel="noopener"><span class="imdb">IMDb</span>${d.imdbWert.toLocaleString('de-DE',{minimumFractionDigits:1,maximumFractionDigits:1})}</a>`:''}
+          ${d.tmdbWert?`<span class="wert"><span class="tmdbm">TMDB</span>${d.tmdbWert.toLocaleString('de-DE',{minimumFractionDigits:1,maximumFractionDigits:1})}</span>`:''}
+        </div>
+      </div>
+    </div>
+    <div class="dinhalt">
+      ${status}${knoepfe}
+      ${laden ? '<div class="laden">Infos werden geladen …</div>' : `
+        ${d.slogan?`<p class="text" style="font-style:italic;color:var(--leise)">„${esc(d.slogan)}“</p>`:''}
+        <div class="abschnitt"><h4>Handlung</h4><p class="text">${esc(d.beschreibung || 'Keine Beschreibung vorhanden.')}</p>${d.englisch&&d.beschreibung?'<div class="quelle">Beschreibung auf Englisch. Mit TMDB-Schlüssel auf Deutsch.</div>':''}</div>
+        <div class="abschnitt"><h4>Wo läuft das?</h4>${anbieterHTML(d.anbieter, d.titel)}</div>
+        ${d.besetzung?.length?`<div class="abschnitt"><h4>Besetzung</h4><div class="besetzung">${d.besetzung.map(p=>`<div class="person"><div class="bild">${p.bild?`<img src="${esc(p.bild)}" alt="" loading="lazy" referrerpolicy="no-referrer" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`:'👤'}</div><b>${esc(p.name)}</b><span>${esc(p.rolle||'')}</span></div>`).join('')}</div></div>`:''}
+        ${fakten.length?`<div class="abschnitt"><h4>Fakten</h4><dl class="fakten">${fakten.map(([k,v])=>`<dt>${esc(k)}</dt><dd>${esc(v)}</dd>`).join('')}</dl></div>`:''}
+        <div class="abschnitt"><a class="btn zwei klein" href="${esc(imdbLink)}" target="_blank" rel="noopener">Auf IMDb ansehen ↗</a></div>
+      `}
+    </div>`;
+  $('b-gesehen').onclick = () => dialog(d);
+  if($('b-merken')) $('b-merken').onclick = () => { if(e?.status==='merken'){ entferne(d); toast('Von der Merkliste entfernt'); } else { speichereEintrag(d,{status:'merken'}); toast('Auf die Merkliste gesetzt'); } zeichneDetail(aktuell||d, laden); };
+  if($('b-entfernen')) $('b-entfernen').onclick = () => { if($('b-entfernen').dataset.sicher){ entferne(d); toast('Entfernt'); zeichneDetail(aktuell||d, laden); } else { $('b-entfernen').dataset.sicher='1'; $('b-entfernen').textContent='Wirklich entfernen?'; } };
+}
+
+/* ---------- Dialog „Gesehen“ ---------- */
+let dlgTitel = null, dlgSterne = 0;
+function dialog(d){
+  dlgTitel = d; const e = finde(d);
+  $('dlg-titel').textContent = (e?.status==='gesehen' ? 'Bearbeiten: ' : 'Gesehen: ') + d.titel;
+  $('f-datum').value = e?.datum || heute(); $('f-datum').max = heute();
+  // Dienst vorschlagen: bisherige Angabe oder erster Abo-Dienst aus JustWatch
+  let vorschlag = e?.dienst || '';
+  if(!vorschlag && d.anbieter?.flatrate?.length){
+    const p = d.anbieter.flatrate[0].provider_name.toLowerCase();
+    vorschlag = DIENSTE.find(x => p.includes(x.toLowerCase().split(' ')[0].replace('+',''))) || '';
+  }
+  $('f-dienst').innerHTML = '<option value="">– bitte wählen –</option>' + DIENSTE.map(x=>`<option ${x===vorschlag?'selected':''}>${esc(x)}</option>`).join('');
+  dlgSterne = e?.sterne || 0; sterne();
+  $('f-notiz').value = e?.notiz || '';
+  $('schleier').classList.add('an');
+}
+function sterne(){ $('f-sterne').innerHTML = [1,2,3,4,5].map(i=>`<button type="button" data-s="${i}" class="${i<=dlgSterne?'an':''}" aria-label="${i} Sterne">★</button>`).join(''); }
+$('f-sterne').addEventListener('click', ev=>{ const b=ev.target.closest('[data-s]'); if(b){ const s=+b.dataset.s; dlgSterne = dlgSterne===s?0:s; sterne(); } });
+$('dlg-abbrechen').addEventListener('click', ()=>$('schleier').classList.remove('an'));
+$('schleier').addEventListener('click', ev=>{ if(ev.target===$('schleier')) $('schleier').classList.remove('an'); });
+$('dlg').addEventListener('submit', ev=>{
+  ev.preventDefault(); if(!dlgTitel) return;
+  speichereEintrag(dlgTitel, {status:'gesehen', datum:$('f-datum').value||heute(), dienst:$('f-dienst').value, sterne:dlgSterne, notiz:$('f-notiz').value.trim()});
+  $('schleier').classList.remove('an'); toast('✓ Als gesehen gespeichert');
+  zeichneDetail(aktuell||dlgTitel, false);
+});
+
+/* ---------- Einstellungen ---------- */
+$('key-speichern').addEventListener('click', async ()=>{
+  const k = $('tmdb-key').value.trim(); const st = $('key-status');
+  if(!k){ st.textContent='Bitte zuerst einen Schlüssel einfügen.'; return; }
+  const alt = tmdbKey; tmdbKey = k; st.textContent='Wird getestet …';
+  try { await tmdb('/configuration'); try{ localStorage.setItem(KEY_SPEICHER,k); }catch(e){} st.textContent='✓ Schlüssel funktioniert und ist gespeichert.'; st.style.color='var(--gruen)'; hinweisSchluessel(); }
+  catch(e){ tmdbKey = alt; st.textContent='✗ Der Schlüssel funktioniert nicht. Bitte genau kopieren (ohne Leerzeichen).'; st.style.color='#ff8f9b'; }
+});
+$('key-loeschen').addEventListener('click', ()=>{ tmdbKey=''; try{localStorage.removeItem(KEY_SPEICHER)}catch(e){} $('tmdb-key').value=''; $('key-status').textContent='Schlüssel entfernt.'; $('key-status').style.color=''; hinweisSchluessel(); });
+
+$('export').addEventListener('click', ()=>{
+  const blob = new Blob([JSON.stringify({app:'filmarchiv', version:1, erstellt:new Date().toISOString(), eintraege:liste}, null, 1)], {type:'application/json'});
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `filmarchiv-sicherung-${heute()}.json`; document.body.append(a); a.click(); a.remove();
+  setTimeout(()=>URL.revokeObjectURL(a.href), 4000); toast('Sicherung heruntergeladen');
+});
+$('import').addEventListener('click', ()=>$('import-datei').click());
+$('import-datei').addEventListener('change', async ev=>{
+  const f = ev.target.files[0]; ev.target.value=''; if(!f) return;
+  try {
+    const d = JSON.parse(await f.text()); const neu = Array.isArray(d) ? d : d.eintraege;
+    if(!Array.isArray(neu)) throw 0;
+    let n = 0;
+    for(const e of neu){ if(!e?.key || !e.titel) continue; const alt = liste.find(x=>x.key===e.key); if(alt) Object.assign(alt, e); else { liste.push(e); n++; } }
+    sichern(); toast(`✓ ${n} neue Einträge übernommen`);
+  } catch(e){ toast('Diese Datei ist keine Filmarchiv-Sicherung'); }
+});
+$('alles-loeschen').addEventListener('click', ev=>{
+  const b = ev.currentTarget;
+  if(!b.dataset.sicher){ b.dataset.sicher='1'; b.textContent='Wirklich ALLES löschen? Nochmal tippen'; setTimeout(()=>{ delete b.dataset.sicher; b.textContent='Alle Einträge löschen'; }, 5000); return; }
+  liste = []; sichern(); delete b.dataset.sicher; b.textContent='Alle Einträge löschen'; toast('Alle Einträge gelöscht');
+});
+
+if(location.hash==='#titel') history.replaceState(null,'',location.pathname);
+hinweisSchluessel(); zeigeSuche();
+})();
+</script>
+</body>
+</html>
