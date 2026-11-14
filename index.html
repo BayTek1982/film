@@ -121,6 +121,20 @@ nav.unten button.an{color:var(--text);font-weight:700}
 .einst p{font-size:14px;color:#cfcdd6}
 .einst ol{font-size:14px;color:#cfcdd6;padding-left:20px}
 .einst a{color:#ff8fa3}
+#vorschlaege{position:absolute;left:0;right:0;top:56px;z-index:8;background:#1d1d25;border:1px solid #3a3a46;border-radius:14px;box-shadow:0 14px 40px rgba(0,0,0,.55);overflow:hidden;display:none;max-height:70vh;overflow-y:auto}
+#vorschlaege.an{display:block}
+.vs{display:flex;align-items:center;gap:11px;width:100%;border:0;background:none;padding:8px 12px;text-align:left;border-bottom:1px solid #2a2a34}
+.vs:last-child{border-bottom:0}
+.vs:hover,.vs.aktiv{background:#2a2a35}
+.vs .vb{width:38px;height:54px;flex:none;border-radius:7px;background:var(--karte2) center/cover;display:grid;place-items:center;font-size:18px;overflow:hidden}
+.vs .vb.rund{width:44px;height:44px;border-radius:50%}
+.vs .vb img{width:100%;height:100%;object-fit:cover}
+.vs .vt{font-weight:700;font-size:14px;line-height:1.25}
+.vs .vt mark{background:none;color:#ff8fa3}
+.vs .vu{font-size:12px;color:var(--leise);margin-top:2px}
+.vs .vh{font-size:10px;font-weight:800;color:#07261a;background:var(--gruen);border-radius:6px;padding:2px 6px;margin-left:auto;flex:none}
+.vs.alle{justify-content:center;color:#ff8fa3;font-weight:700;font-size:13px;padding:12px}
+.vkopf{font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--leise);padding:8px 12px 3px;background:#18181f}
 .flabel{font-size:11px;color:var(--leise);text-transform:uppercase;letter-spacing:.06em;margin:4px 0 2px}
 .schalter{display:flex;align-items:center;gap:8px;font-size:14px;margin:6px 0 4px}
 .schalter input{width:20px;height:20px;accent-color:var(--akzent)}
@@ -145,12 +159,13 @@ button.person .bild{margin:0 auto 5px}
   </header>
 
   <!-- Seite: Suchen -->
-  <section class="seite an" id="s-suche">
+  <section class="seite an" id="s-suche" style="position:relative">
     <div class="suche">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7.5"/><path d="m20.5 20.5-4.3-4.3"/></svg>
       <input id="q" type="search" placeholder="Film, Serie oder Schauspieler …" autocomplete="off" spellcheck="false" aria-label="Film oder Serie suchen">
       <button id="q-weg" type="button" aria-label="Suche löschen">×</button>
     </div>
+    <div id="vorschlaege" role="listbox" aria-label="Vorschläge"></div>
     <div id="schluessel-hinweis"></div>
     <div id="suche-inhalt"></div>
   </section>
@@ -474,7 +489,7 @@ async function zeigeSuche(){
   try {
     const {titel:t, personen:p} = await suchen(text); if(nr!==suchNr) return;
     // Wenn der Suchbegriff eher eine Person ist, Personen zuerst zeigen
-    const personZuerst = p.length && norm(p[0].name)===n;
+    const personZuerst = p.length && passtName(p[0].name, n);
     const ph = p.length ? `<h2>Personen</h2><div class="personen">${p.map(personKachel).join('')}</div>` : '';
     const th = t.length ? `<h2>Filme & Serien</h2><div class="raster">${t.map(kachel).join('')}</div>` : '';
     const leer = (!t.length && !p.length) ? `<div class="leer">Nichts gefunden. Prüfe die Schreibweise oder versuche den Originaltitel.</div>` : '';
@@ -482,8 +497,87 @@ async function zeigeSuche(){
     ziel.querySelector('.laden').outerHTML = (personZuerst ? ph+th : th+ph) + leer + (tmdbKey ? '' : '<div class="quelle" style="margin-top:14px">Suche nach Schauspielern gibt es mit dem TMDB-Schlüssel (Einstellungen).</div>');
   } catch(e){ if(nr!==suchNr) return; const l=ziel.querySelector('.laden'); if(l) l.textContent='Suche fehlgeschlagen. Bist du online?'+(tmdbKey?' Stimmt der TMDB-Schlüssel?':''); }
 }
-$('q').addEventListener('input', ()=>{ clearTimeout(suchTimer); suchTimer = setTimeout(zeigeSuche, 350); });
-$('q-weg').addEventListener('click', ()=>{ $('q').value=''; zeigeSuche(); $('q').focus(); });
+// Jedes eingegebene Wort passt zum Anfang eines Wortes im Namen ("will smit" → "Will Smith")
+function passtName(name, n){ const w = norm(name).split(' '); const q = n.split(' ').filter(Boolean); return q.length>0 && q.every(x=>w.some(y=>y.startsWith(x))); }
+function markiere(text, n){
+  const q = n.split(' ').filter(Boolean); if(!q.length) return esc(text);
+  return String(text).split(/(\s+)/).map(wort => { const k = norm(wort); const t = q.find(x=>k.startsWith(x)); if(!t || !k) return esc(wort); const l = Math.min(t.length, wort.length); return `<mark>${esc(wort.slice(0,l))}</mark>${esc(wort.slice(l))}`; }).join('');
+}
+
+/* ---------- Vorschläge beim Tippen ---------- */
+let vsNr = 0, vsTimer, vsListe = [], vsAktiv = -1;
+async function vorschlagDaten(text){
+  if(tmdbKey){
+    const d = await tmdb('/search/multi', {query:text, include_adult:'false'});
+    let r = d.results || [];
+    // Tippfehler-Hilfe: nichts gefunden → letztes Wort kürzen
+    if(!r.length && text.length > 3){ const kurz = text.slice(0, -1); r = (await tmdb('/search/multi', {query:kurz, include_adult:'false'})).results || []; }
+    const personen = r.filter(x=>x.media_type==='person').sort((a,b)=>(b.popularity||0)-(a.popularity||0)).slice(0,3)
+      .map(x=>({art:'person', id:x.id, name:x.name, bild:x.profile_path?IMG+'w185'+x.profile_path:'', fach:x.known_for_department, bekannt:(x.known_for||[]).map(k=>k.title||k.name).filter(Boolean).slice(0,2).join(', ')}));
+    const titel = r.filter(x=>x.media_type==='movie'||x.media_type==='tv').sort((a,b)=>((b.popularity||0)+(b.vote_count||0)/100)-((a.popularity||0)+(a.vote_count||0)/100)).slice(0,6).map(x=>({art:'titel', t:ausTmdb(x)}));
+    return {personen, titel};
+  }
+  const {titel} = await suchen(text);
+  return {personen:[], titel: titel.slice(0,7).map(t=>({art:'titel', t}))};
+}
+function vsSchliessen(){ $('vorschlaege').classList.remove('an'); vsAktiv = -1; }
+async function zeigeVorschlaege(){
+  const text = $('q').value.trim(); const nr = ++vsNr; const box = $('vorschlaege');
+  if(text.length < 2){ vsSchliessen(); return; }
+  const n = norm(text);
+  // eigene Liste sofort (auch offline)
+  const eigene = liste.filter(e=>passtName(e.titel, n) || norm(e.titel).includes(n)).slice(0,3).map(e=>({art:'titel', t:e, eigen:true}));
+  let daten = {personen:[], titel:[]};
+  try { daten = await vorschlagDaten(text); } catch(e){}
+  if(nr!==vsNr || $('q').value.trim()!==text) return;
+  const schon = new Set(eigene.map(x=>x.t.key));
+  const titel = daten.titel.filter(x=>!schon.has(x.t.key) && !(x.t.imdb && eigene.some(e=>e.t.imdb===x.t.imdb)));
+  // Personen nach oben, wenn der Name zum Eingetippten passt
+  const personOben = daten.personen.length && passtName(daten.personen[0].name, n);
+  const gruppen = [];
+  if(eigene.length) gruppen.push(['In deiner Liste', eigene]);
+  if(personOben) gruppen.push(['Personen', daten.personen]);
+  if(titel.length) gruppen.push(['Filme & Serien', titel]);
+  if(!personOben && daten.personen.length) gruppen.push(['Personen', daten.personen]);
+  vsListe = []; let html = '';
+  for(const [kopf, eintraege] of gruppen){
+    html += `<div class="vkopf">${esc(kopf)}</div>`;
+    for(const v of eintraege){
+      const i = vsListe.push(v) - 1;
+      if(v.art==='person'){
+        html += `<button class="vs" type="button" data-vs="${i}" role="option"><div class="vb rund">${v.bild?`<img src="${esc(v.bild)}" alt="" referrerpolicy="no-referrer" onerror="this.remove()">`:'👤'}</div><div><div class="vt">${markiere(v.name, n)}</div><div class="vu">${esc([FACH[v.fach]||'', v.bekannt?'bekannt aus '+v.bekannt:''].filter(Boolean).join(' · '))}</div></div></button>`;
+      } else {
+        const t = v.t; const e = finde(t);
+        html += `<button class="vs" type="button" data-vs="${i}" role="option"><div class="vb">${t.poster?`<img src="${esc(t.poster)}" alt="" referrerpolicy="no-referrer" onerror="this.remove()">`:(t.typ==='serie'?'📺':'🎬')}</div><div style="min-width:0"><div class="vt">${markiere(t.titel, n)}</div><div class="vu">${esc([t.typ==='serie'?'Serie':'Film', t.jahr].filter(Boolean).join(' · '))}</div></div>${e?.status==='gesehen'?'<span class="vh">✓ Gesehen</span>':(e?.status==='merken'?'<span class="vh" style="background:#7aa7ff;color:#0b1a3a">Gemerkt</span>':'')}</button>`;
+      }
+    }
+  }
+  html += `<button class="vs alle" type="button" data-vs="alle">Alle Ergebnisse für „${esc(text)}“ anzeigen</button>`;
+  box.innerHTML = vsListe.length ? html : `<div class="vkopf" style="padding:12px">Keine Vorschläge – prüfe die Schreibweise</div>`;
+  vsAktiv = -1; box.classList.add('an');
+}
+function vsWaehlen(i){
+  if(i==='alle'){ vsSchliessen(); $('q').blur(); clearTimeout(suchTimer); zeigeSuche(); return; }
+  const v = vsListe[i]; if(!v) return; vsSchliessen(); $('q').blur();
+  if(v.art==='person') oeffnePerson({id:v.id, name:v.name, bild:v.bild}); else oeffne(v.t);
+}
+$('vorschlaege').addEventListener('pointerdown', ev => ev.preventDefault()); // Fokus nicht verlieren
+$('vorschlaege').addEventListener('click', ev => { const b = ev.target.closest('[data-vs]'); if(b){ ev.stopPropagation(); vsWaehlen(b.dataset.vs==='alle'?'alle':+b.dataset.vs); } });
+$('q').addEventListener('keydown', ev => {
+  const knoepfe = [...$('vorschlaege').querySelectorAll('[data-vs]')];
+  if(ev.key==='ArrowDown' || ev.key==='ArrowUp'){ if(!knoepfe.length) return; ev.preventDefault(); vsAktiv = (vsAktiv + (ev.key==='ArrowDown'?1:-1) + knoepfe.length) % knoepfe.length; knoepfe.forEach((k,j)=>k.classList.toggle('aktiv', j===vsAktiv)); knoepfe[vsAktiv].scrollIntoView({block:'nearest'}); }
+  else if(ev.key==='Enter'){ ev.preventDefault(); if(vsAktiv>=0 && knoepfe[vsAktiv]){ const d = knoepfe[vsAktiv].dataset.vs; vsWaehlen(d==='alle'?'alle':+d); } else vsWaehlen('alle'); }
+  else if(ev.key==='Escape') vsSchliessen();
+});
+$('q').addEventListener('blur', ()=>setTimeout(vsSchliessen, 150));
+$('q').addEventListener('focus', ()=>{ if($('q').value.trim().length>=2 && $('vorschlaege').innerHTML) $('vorschlaege').classList.add('an'); });
+
+$('q').addEventListener('input', ()=>{
+  clearTimeout(suchTimer); clearTimeout(vsTimer);
+  vsTimer = setTimeout(zeigeVorschlaege, 220);
+  suchTimer = setTimeout(zeigeSuche, 700);
+});
+$('q-weg').addEventListener('click', ()=>{ $('q').value=''; vsSchliessen(); $('vorschlaege').innerHTML=''; zeigeSuche(); $('q').focus(); });
 
 let filterDienst = '';
 function zeigeGesehen(){
