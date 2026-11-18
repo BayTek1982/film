@@ -56,6 +56,13 @@ h2{font-size:17px;margin:22px 0 10px;letter-spacing:-.01em}
 .zahl{background:var(--karte);border:1px solid var(--rand);border-radius:12px;padding:10px 12px}
 .zahl b{display:block;font-size:20px}
 .zahl span{font-size:11px;color:var(--leise)}
+button.zahl{text-align:left;cursor:pointer;width:100%}
+button.zahl.an{border-color:var(--akzent);background:#2a1a22}
+.chip small{opacity:.7;font-weight:500;margin-left:3px}
+.trefferzeile{display:flex;justify-content:space-between;align-items:center;font-size:12px;color:var(--leise);margin:2px 0 8px}
+.trefferzeile button{border:0;background:none;color:#ff8fa3;font-size:12px;padding:4px 0}
+.monat{font-size:12px;font-weight:800;color:var(--leise);text-transform:uppercase;letter-spacing:.06em;margin:12px 2px 2px;display:flex;justify-content:space-between}
+.monat:first-child{margin-top:0}
 nav.unten{position:fixed;left:0;right:0;bottom:0;background:rgba(18,18,24,.96);backdrop-filter:blur(10px);border-top:1px solid var(--rand);display:flex;justify-content:center;padding-bottom:env(safe-area-inset-bottom);z-index:5}
 nav.unten button{flex:1;max-width:180px;border:0;background:none;padding:9px 4px 8px;color:var(--leise);font-size:11px;display:flex;flex-direction:column;align-items:center;gap:2px}
 nav.unten button span{font-size:21px;line-height:1}
@@ -195,7 +202,12 @@ button.person .bild{margin:0 auto 5px}
     <div class="suche" style="min-height:46px;margin-bottom:10px">
       <input id="q-gesehen" type="search" placeholder="In „Gesehen“ suchen …" autocomplete="off" aria-label="In Gesehen suchen">
     </div>
-    <div class="filter" id="filter-gesehen"></div>
+    <div class="flabel">Art</div>
+    <div class="filter" id="filter-typ"></div>
+    <div class="flabel">Jahr</div>
+    <div class="filter" id="filter-jahr"></div>
+    <div id="filter-dienst-block"><div class="flabel">Streaming-Dienst</div><div class="filter" id="filter-gesehen"></div></div>
+    <div class="trefferzeile" id="treffer-gesehen"></div>
     <div class="liste" id="liste-gesehen"></div>
   </section>
 
@@ -580,19 +592,77 @@ $('q').addEventListener('input', ()=>{
 $('q-weg').addEventListener('click', ()=>{ $('q').value=''; vsSchliessen(); $('vorschlaege').innerHTML=''; zeigeSuche(); $('q').focus(); });
 
 let filterDienst = '';
+let filterTyp = '', filterJahr = '', gesehenAnzahl = 150;
+const MONATE = ['Januar','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'];
+try { const f = JSON.parse(localStorage.getItem('filmarchiv-filter')||'{}'); filterTyp = f.typ||''; filterJahr = f.jahr||''; filterDienst = f.dienst||''; } catch(e){}
+function filterMerken(){ try { localStorage.setItem('filmarchiv-filter', JSON.stringify({typ:filterTyp, jahr:filterJahr, dienst:filterDienst})); } catch(e){} }
+const zahlFmt = z => z.toLocaleString('de-DE');
 function zeigeGesehen(){
   const alle = liste.filter(e=>e.status==='gesehen');
   const jahrJetzt = String(new Date().getFullYear());
-  $('zahlen').innerHTML = `<div class="zahl"><b>${alle.length}</b><span>Gesehen gesamt</span></div><div class="zahl"><b>${alle.filter(e=>e.typ!=='serie').length} / ${alle.filter(e=>e.typ==='serie').length}</b><span>Filme / Serien</span></div><div class="zahl"><b>${alle.filter(e=>(e.datum||'').startsWith(jahrJetzt)).length}</b><span>Im Jahr ${jahrJetzt}</span></div>`;
-  const dienste = [...new Set(alle.map(e=>e.dienst).filter(Boolean))].sort();
-  if(filterDienst && !dienste.includes(filterDienst)) filterDienst='';
-  $('filter-gesehen').innerHTML = dienste.length>1 ? [`<button class="chip ${filterDienst?'':'an'}" data-dienst="" type="button">Alle</button>`, ...dienste.map(d=>`<button class="chip ${d===filterDienst?'an':''}" data-dienst="${esc(d)}" type="button">${esc(d)}</button>`)].join('') : '';
+  const passtTyp = e => !filterTyp || (filterTyp==='serie' ? e.typ==='serie' : e.typ!=='serie');
+  const passtJahr = e => !filterJahr || (e.datum||'').startsWith(filterJahr);
+  const passtDienst = e => !filterDienst || e.dienst===filterDienst;
+
+  // Kacheln oben: antippen setzt den Filter
+  const jahrKachel = filterJahr || jahrJetzt;
+  $('zahlen').innerHTML =
+    `<button type="button" class="zahl ${!filterTyp&&!filterJahr&&!filterDienst?'an':''}" data-kachel="alle"><b>${zahlFmt(alle.length)}</b><span>Gesehen gesamt</span></button>`+
+    `<button type="button" class="zahl ${filterTyp?'an':''}" data-kachel="typ"><b>${zahlFmt(alle.filter(e=>e.typ!=='serie'&&passtJahr(e)).length)} / ${zahlFmt(alle.filter(e=>e.typ==='serie'&&passtJahr(e)).length)}</b><span>Filme / Serien${filterJahr?' '+filterJahr:''}</span></button>`+
+    `<button type="button" class="zahl ${filterJahr?'an':''}" data-kachel="jahr"><b>${zahlFmt(alle.filter(e=>(e.datum||'').startsWith(jahrKachel)&&passtTyp(e)).length)}</b><span>Im Jahr ${jahrKachel}</span></button>`;
+
+  // Art: Alle / Filme / Serien (Zahlen passend zum gewählten Jahr)
+  const basisTyp = alle.filter(e=>passtJahr(e)&&passtDienst(e));
+  const typen = [['','Alle',basisTyp.length],['film','🎬 Filme',basisTyp.filter(e=>e.typ!=='serie').length],['serie','📺 Serien',basisTyp.filter(e=>e.typ==='serie').length]];
+  $('filter-typ').innerHTML = typen.map(([w,n,z])=>`<button class="chip ${w===filterTyp?'an':''}" data-ftyp="${w}" type="button">${n}<small>${zahlFmt(z)}</small></button>`).join('');
+
+  // Jahr: alle Jahre, in denen etwas gesehen wurde (neueste zuerst)
+  const basisJahr = alle.filter(e=>passtTyp(e)&&passtDienst(e));
+  const jahre = {}; basisJahr.forEach(e=>{ const j=(e.datum||'').slice(0,4); if(/^\d{4}$/.test(j)) jahre[j]=(jahre[j]||0)+1; });
+  if(filterJahr && !jahre[filterJahr]) jahre[filterJahr] = 0;
+  $('filter-jahr').innerHTML = [`<button class="chip ${filterJahr?'':'an'}" data-fjahr="" type="button">Alle</button>`,
+    ...Object.keys(jahre).sort((a,b)=>b.localeCompare(a)).map(j=>`<button class="chip ${j===filterJahr?'an':''}" data-fjahr="${j}" type="button">${j}<small>${zahlFmt(jahre[j])}</small></button>`)].join('');
+  const aktiverJahrChip = $('filter-jahr').querySelector('.chip.an'); if(aktiverJahrChip && filterJahr) aktiverJahrChip.scrollIntoView({block:'nearest', inline:'center'});
+
+  // Streaming-Dienst
+  const basisDienst = alle.filter(e=>passtTyp(e)&&passtJahr(e));
+  const dienste = {}; basisDienst.forEach(e=>{ if(e.dienst) dienste[e.dienst]=(dienste[e.dienst]||0)+1; });
+  const dienstNamen = Object.keys(dienste).sort((a,b)=>dienste[b]-dienste[a]);
+  if(filterDienst && !dienste[filterDienst]) filterDienst='';
+  $('filter-dienst-block').style.display = dienstNamen.length>1 ? '' : 'none';
+  $('filter-gesehen').innerHTML = [`<button class="chip ${filterDienst?'':'an'}" data-dienst="" type="button">Alle</button>`, ...dienstNamen.map(d=>`<button class="chip ${d===filterDienst?'an':''}" data-dienst="${esc(d)}" type="button">${esc(d)}<small>${zahlFmt(dienste[d])}</small></button>`)].join('');
+
+  // Liste
   const n = norm($('q-gesehen').value);
-  const sicht = alle.filter(e=>(!filterDienst||e.dienst===filterDienst) && (!n||norm(e.titel).includes(n))).sort((a,b)=>(b.datum||'').localeCompare(a.datum||''));
-  $('liste-gesehen').innerHTML = sicht.length ? sicht.map(zeile).join('') : `<div class="leer">${alle.length?'Keine Treffer.':'Noch nichts als gesehen markiert.<br>Suche einen Titel und tippe auf „Gesehen“.'}</div>`;
+  const sicht = alle.filter(e=>passtTyp(e)&&passtJahr(e)&&passtDienst(e)&&(!n||norm(e.titel).includes(n))).sort((a,b)=>(b.datum||'').localeCompare(a.datum||''));
+  const aktiv = filterTyp||filterJahr||filterDienst||n;
+  $('treffer-gesehen').innerHTML = aktiv ? `<span>${zahlFmt(sicht.length)} ${sicht.length===1?'Eintrag':'Einträge'}</span><button type="button" id="filter-weg">✕ Filter zurücksetzen</button>` : '';
+  if(!sicht.length){ $('liste-gesehen').innerHTML = `<div class="leer">${alle.length?'Keine Treffer für diese Filter.':'Noch nichts als gesehen markiert.<br>Suche einen Titel und tippe auf „Gesehen“.'}</div>`; return; }
+  // nach Monat gruppiert, mit Anzahl pro Monat
+  const proMonat = {}; sicht.forEach(e=>{ const m=(e.datum||'').slice(0,7); proMonat[m]=(proMonat[m]||0)+1; });
+  let html = '', letzter = null;
+  for(const e of sicht.slice(0, gesehenAnzahl)){
+    const m = (e.datum||'').slice(0,7);
+    if(m!==letzter){ letzter = m; const [y,mo] = m.split('-'); html += `<div class="monat"><span>${mo?MONATE[+mo-1]+' '+y:'Ohne Datum'}</span><span>${zahlFmt(proMonat[m])}</span></div>`; }
+    html += zeile(e);
+  }
+  if(sicht.length > gesehenAnzahl) html += `<div style="text-align:center;margin:14px 0"><button class="btn zwei" type="button" id="gesehen-mehr">Weitere anzeigen (${zahlFmt(sicht.length-gesehenAnzahl)} übrig)</button></div>`;
+  $('liste-gesehen').innerHTML = html;
 }
-$('filter-gesehen').addEventListener('click', ev=>{ const b=ev.target.closest('[data-dienst]'); if(b){ filterDienst=b.dataset.dienst; zeigeGesehen(); } });
-$('q-gesehen').addEventListener('input', zeigeGesehen);
+document.addEventListener('click', ev=>{
+  const t = ev.target.closest('[data-ftyp],[data-fjahr],[data-kachel],#filter-weg,#gesehen-mehr');
+  if(!t || !t.closest('#s-gesehen')) return;
+  if(t.id==='gesehen-mehr'){ gesehenAnzahl += 300; zeigeGesehen(); return; }
+  if(t.id==='filter-weg'){ filterTyp=''; filterJahr=''; filterDienst=''; $('q-gesehen').value=''; }
+  else if('ftyp' in t.dataset) filterTyp = t.dataset.ftyp;
+  else if('fjahr' in t.dataset) filterJahr = t.dataset.fjahr;
+  else if(t.dataset.kachel==='alle'){ filterTyp=''; filterJahr=''; filterDienst=''; }
+  else if(t.dataset.kachel==='typ') filterTyp = filterTyp==='' ? 'film' : (filterTyp==='film' ? 'serie' : '');
+  else if(t.dataset.kachel==='jahr') filterJahr = filterJahr ? '' : String(new Date().getFullYear());
+  gesehenAnzahl = 150; filterMerken(); zeigeGesehen();
+});
+$('filter-gesehen').addEventListener('click', ev=>{ const b=ev.target.closest('[data-dienst]'); if(b){ filterDienst=b.dataset.dienst; gesehenAnzahl=150; filterMerken(); zeigeGesehen(); } });
+$('q-gesehen').addEventListener('input', ()=>{ gesehenAnzahl=150; zeigeGesehen(); });
 
 function zeigeMerken(){
   const m = liste.filter(e=>e.status==='merken').sort((a,b)=>(b.hinzu||'').localeCompare(a.hinzu||''));
