@@ -10,6 +10,7 @@
 <link rel="icon" type="image/svg+xml" href="icons/icon.svg">
 <link rel="apple-touch-icon" href="icons/icon-180.png">
 <meta name="referrer" content="no-referrer">
+<script>try{var t=JSON.parse(localStorage.getItem("filmarchiv-thema"));document.documentElement.dataset.thema=t||(matchMedia("(prefers-color-scheme: light)").matches?"hell":"dunkel")}catch(e){document.documentElement.dataset.thema="dunkel"}</script>
 <style>
 :root{--hg:#0f0f14;--karte:#191920;--karte2:#22222b;--rand:#2e2e38;--text:#f4f4f7;--leise:#9d9ba8;--akzent:#e94560;--gruen:#5fd39a;--gelb:#f5c518;--r:16px}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
@@ -63,7 +64,7 @@ button.zahl.an{border-color:var(--akzent);background:#2a1a22}
 .trefferzeile button{border:0;background:none;color:#ff8fa3;font-size:12px;padding:4px 0}
 .monat{font-size:12px;font-weight:800;color:var(--leise);text-transform:uppercase;letter-spacing:.06em;margin:12px 2px 2px;display:flex;justify-content:space-between}
 .monat:first-child{margin-top:0}
-nav.unten{position:fixed;left:0;right:0;bottom:0;background:rgba(18,18,24,.96);backdrop-filter:blur(10px);border-top:1px solid var(--rand);display:flex;justify-content:center;padding-bottom:env(safe-area-inset-bottom);z-index:5}
+nav.unten{position:fixed;left:0;right:0;bottom:0;background:var(--nav);backdrop-filter:blur(10px);border-top:1px solid var(--rand);display:flex;justify-content:center;padding-bottom:env(safe-area-inset-bottom);z-index:5}
 nav.unten button{flex:1;max-width:180px;border:0;background:none;padding:9px 4px 8px;color:var(--leise);font-size:11px;display:flex;flex-direction:column;align-items:center;gap:2px}
 nav.unten button span{font-size:21px;line-height:1}
 nav.unten button.an{color:var(--text);font-weight:700}
@@ -114,7 +115,7 @@ nav.unten button.an{color:var(--text);font-weight:700}
 /* Dialog */
 .schleier{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:20;display:none;align-items:flex-end;justify-content:center}
 .schleier.an{display:flex}
-.dialog{background:#1b1b22;border:1px solid var(--rand);border-radius:20px 20px 0 0;width:100%;max-width:520px;padding:18px 18px calc(18px + env(safe-area-inset-bottom));max-height:92vh;overflow-y:auto}
+.dialog{background:var(--dlg);border:1px solid var(--rand);border-radius:20px 20px 0 0;width:100%;max-width:520px;padding:18px 18px calc(18px + env(safe-area-inset-bottom));max-height:92vh;overflow-y:auto}
 .dialog h3{margin:0 0 14px;font-size:18px}
 .feld{margin-bottom:13px}
 .feld label{display:block;font-size:12px;color:var(--leise);margin-bottom:5px}
@@ -155,6 +156,86 @@ button.person .bild{margin:0 auto 5px}
 .kurz{display:-webkit-box;-webkit-line-clamp:5;-webkit-box-orient:vertical;overflow:hidden}
 .mehrtext{border:0;background:none;color:#ff8fa3;padding:4px 0;font-size:13px}
 .fuss{font-size:11px;color:var(--leise);margin-top:26px;line-height:1.6}
+/* ---- Neu: Kopf, Sync, Thema ---- */
+.syncpunkt{width:10px;height:10px;border-radius:50%;background:transparent;flex:none}
+.syncpunkt.ok{background:var(--gruen)}.syncpunkt.laeuft{background:#f5a623;animation:puls 1s infinite}.syncpunkt.fehler{background:#ff5d6c}
+@keyframes puls{50%{opacity:.35}}
+.themaknopf{border:1px solid var(--rand);background:var(--karte);border-radius:12px;width:40px;height:40px;font-size:18px;flex:none}
+nav.unten button{position:relative;font-size:10.5px}
+nav.unten button.punkt::after{content:"";position:absolute;top:6px;left:calc(50% + 8px);width:9px;height:9px;border-radius:50%;background:var(--akzent);border:2px solid var(--hg)}
+.wrapfilter{flex-wrap:wrap;overflow:visible}
+ul.einfach{font-size:14px;padding-left:20px;color:var(--text2)}ul.einfach li{margin:4px 0}
+.einst a,.einfach a{color:#ff8fa3}
+code{background:var(--karte2);padding:1px 5px;border-radius:5px}
+/* ---- Fortschritt ---- */
+.balken{height:9px;border-radius:9px;background:var(--karte2);overflow:hidden;margin:6px 0 2px}
+.balken i{display:block;height:100%;background:linear-gradient(90deg,var(--akzent),#ff8a5c);border-radius:9px}
+.naechste{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:12px 0;padding:12px 14px;border-radius:14px;background:var(--karte);border:1px solid var(--akzent)}
+.naechste small{display:block;font-size:11px;color:var(--leise);text-transform:uppercase;letter-spacing:.06em}
+.naechste b{display:block;font-size:15px}.naechste span{font-size:13px;color:var(--leise)}
+.naechste.fertig{border-color:#2f5c45;background:var(--gruenhg)}
+details.staffel{border:1px solid var(--rand);border-radius:12px;margin-top:8px;background:var(--karte);overflow:hidden}
+details.staffel summary{list-style:none;display:flex;justify-content:space-between;align-items:center;padding:12px 14px;cursor:pointer;font-weight:700;font-size:14px}
+details.staffel summary::-webkit-details-marker{display:none}
+details.staffel summary::after{content:"›";margin-left:8px;transition:.2s;color:var(--leise)}
+details.staffel[open] summary::after{transform:rotate(90deg)}
+.sz{margin-left:auto;font-size:13px;color:var(--leise);font-weight:600}.sz.voll{color:var(--gruen)}
+.folgen{padding:0 10px 10px}
+.folge{display:flex;align-items:center;gap:10px;padding:8px 4px;border-top:1px solid var(--rand)}
+.folge .fm{flex:1;min-width:0}.folge .fm b{display:block;font-size:13px;font-weight:600}.folge .fm small{font-size:11px;color:var(--leise)}
+.folge.zukunft{opacity:.5}
+.haken{width:30px;height:30px;flex:none;border-radius:50%;border:2px solid var(--rand);background:transparent;color:#07261a;font-weight:900;font-size:15px}
+.folge.an .haken{background:var(--gruen);border-color:var(--gruen)}
+.bis{border:0;background:none;color:var(--leise);font-size:11px;white-space:nowrap}
+/* ---- Listen ---- */
+.lkopf{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.lkopf h2{flex:1}
+.ldlg{display:flex;flex-direction:column;gap:6px}
+.lzeile{display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid var(--rand);border-radius:12px;background:var(--karte);font-size:15px}
+.lzeile input{width:20px;height:20px;accent-color:var(--akzent)}.lzeile.aus{opacity:.55}
+/* ---- Abos ---- */
+.chip.abo{display:inline-flex;align-items:center;gap:6px;padding:5px 11px 5px 5px}
+.chip.abo img{width:22px;height:22px;border-radius:6px}
+.abohinweis{font-size:13px;padding:9px 12px;border-radius:11px;background:var(--karte);border:1px solid var(--rand);margin-bottom:10px}
+.abohinweis.ja{background:var(--gruenhg);border-color:#2f5c45}
+.logos a.meins{border-color:var(--gelb)}
+/* ---- Neuigkeiten ---- */
+.newsbox{margin:14px 0 4px;border:1px solid var(--akzent);border-radius:16px;background:var(--karte);overflow:hidden}
+.nkopf{display:flex;justify-content:space-between;align-items:center;padding:11px 14px;border-bottom:1px solid var(--rand)}
+.nkopf button{border:0;background:none;color:#ff8fa3;font-size:12px}
+.nzeile{display:flex;align-items:center;gap:11px;width:100%;border:0;border-bottom:1px solid var(--rand);background:none;padding:8px 12px;text-align:left;font-size:13px;font-weight:600}
+.nzeile:last-child{border-bottom:0}.nzeile .mini{width:34px;flex:none}.nzeile .mini .poster{border-radius:6px;font-size:13px}
+/* ---- Statistik ---- */
+.rueckblick{padding:18px;border-radius:18px;background:linear-gradient(135deg,#e94560,#7a1633);color:#fff;margin-bottom:12px}
+.rueckblick small{display:block;text-transform:uppercase;letter-spacing:.1em;font-size:11px;opacity:.85}.rueckblick b{font-size:24px}
+.zahlen.stat .zahl.breit{grid-column:1/-1}
+.bliste{display:flex;flex-direction:column;gap:7px}
+.bz{display:grid;grid-template-columns:minmax(80px,34%) 1fr auto;align-items:center;gap:8px;font-size:13px}
+.bl{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bb{height:10px;background:var(--karte2);border-radius:10px;overflow:hidden}.bb i{display:block;height:100%;background:var(--akzent);border-radius:10px}
+.bw{font-weight:700;font-variant-numeric:tabular-nums;min-width:28px;text-align:right}
+.saeulen{display:flex;align-items:flex-end;gap:5px;height:150px;padding-top:16px}
+.sa{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;min-width:0}
+.sa i{display:block;width:100%;max-width:34px;background:linear-gradient(180deg,#ff8a5c,var(--akzent));border-radius:6px 6px 2px 2px}
+.sa small{font-size:10px;color:var(--leise);margin-top:4px;white-space:nowrap}.sa .sw{font-size:10px;color:var(--leise);margin-bottom:2px}
+.imdb.klein{font-size:9px;padding:0 3px}
+/* ---- Helle Ansicht ---- */
+:root{--text2:#cfcdd6;--gruenhg:#15261e;--dlg:#1b1b22;--nav:rgba(18,18,24,.96)}
+[data-thema="hell"]{--hg:#f3f3f7;--karte:#ffffff;--karte2:#ebebf1;--rand:#dcdce4;--text:#17171d;--leise:#6a6876;--text2:#3d3b45;--gruenhg:#e3f6ec;--dlg:#ffffff;--nav:rgba(255,255,255,.96);color-scheme:light}
+[data-thema="hell"] .text{color:#33313b}
+[data-thema="hell"] .zeile .d{color:#33313b}
+[data-thema="hell"] nav.unten{background:var(--nav)}
+[data-thema="hell"] .hinweisbox{background:#fbeef3;border-color:#efc3d1;color:#3d3b45}[data-thema="hell"] .hinweisbox b{color:#17171d}
+[data-thema="hell"] .status.ja{background:var(--gruenhg);border-color:#9ed7b9}
+[data-thema="hell"] .dialog{background:var(--dlg)}
+[data-thema="hell"] #vorschlaege{background:#fff;border-color:var(--rand)}
+[data-thema="hell"] .vkopf{background:#f3f3f7}
+[data-thema="hell"] .vs{border-color:var(--rand)}[data-thema="hell"] .vs:hover,[data-thema="hell"] .vs.aktiv{background:#f0f0f5}
+[data-thema="hell"] .suche button{background:#e3e3ea}
+[data-thema="hell"] button.zahl.an{background:#fdebf0}
+[data-thema="hell"] .einst p,[data-thema="hell"] .einst ol{color:#3d3b45}
+[data-thema="hell"] .hero{background-color:#e4e4ea}
+[data-thema="hell"] .toast{background:#17171d;color:#fff}
+[data-thema="hell"] .vs .vt mark,[data-thema="hell"] .einst a,[data-thema="hell"] .einfach a,[data-thema="hell"] .trefferzeile button,[data-thema="hell"] .nkopf button,[data-thema="hell"] .mehrtext{color:#c4223f}
 @media(min-width:640px){.raster{grid-template-columns:repeat(auto-fill,minmax(140px,1fr))}.dkopf .dposter{width:170px}.dkopf{margin-top:-150px}.hero{min-height:300px}.dialog{border-radius:20px;margin-bottom:5vh}.schleier{align-items:center}}
 </style>
 </head>
@@ -162,7 +243,9 @@ button.person .bild{margin:0 auto 5px}
 <div class="wrap">
   <header class="kopf">
     <div class="logo" aria-hidden="true">🎬</div>
-    <div><h1>Filmarchiv</h1><small>Alle Streaming-Dienste · Schon gesehen?</small></div>
+    <div style="flex:1"><h1>Filmarchiv</h1><small>Alle Streaming-Dienste · Schon gesehen?</small></div>
+    <span id="sync-punkt" class="syncpunkt" title="Sync"></span>
+    <button id="thema-knopf" class="themaknopf" type="button" aria-label="Hell oder Dunkel umschalten">☀️</button>
   </header>
 
   <!-- Seite: Suchen -->
@@ -208,13 +291,22 @@ button.person .bild{margin:0 auto 5px}
     <div class="filter" id="filter-jahr"></div>
     <div id="filter-dienst-block"><div class="flabel">Streaming-Dienst</div><div class="filter" id="filter-gesehen"></div></div>
     <div class="trefferzeile" id="treffer-gesehen"></div>
+    <div id="gesehen-banner"></div>
     <div class="liste" id="liste-gesehen"></div>
   </section>
 
-  <!-- Seite: Merkliste -->
+  <!-- Seite: Listen (Merkliste + eigene Listen) -->
   <section class="seite" id="s-merken">
-    <h2 style="margin-top:4px">Will ich noch sehen</h2>
+    <div class="filter" id="listen-wahl"></div>
+    <div id="listen-kopf"></div>
     <div class="liste" id="liste-merken"></div>
+  </section>
+
+  <!-- Seite: Statistik -->
+  <section class="seite" id="s-stat">
+    <h2 style="margin-top:4px">Statistik</h2>
+    <div class="filter" id="stat-jahr"></div>
+    <div id="stat-inhalt"></div>
   </section>
 
   <!-- Seite: Einstellungen -->
@@ -230,12 +322,36 @@ button.person .bild{margin:0 auto 5px}
     <div class="knoepfe"><button class="btn" id="key-speichern" type="button">Speichern &amp; testen</button><button class="btn zwei" id="key-loeschen" type="button">Schlüssel entfernen</button></div>
     <div id="key-status" class="quelle"></div>
 
+    <h2>⭐ Meine Abos</h2>
+    <p>Wähle die Streaming-Dienste, die du hast. Dann zeigt „Entdecken“ automatisch nur Titel aus deinen Abos, und auf jeder Filmseite siehst du sofort, ob er in deinem Abo ist.</p>
+    <div class="filter wrapfilter" id="abo-wahl"><span class="quelle">Braucht den TMDB-Schlüssel.</span></div>
+
+    <h2>📥 Verlauf importieren</h2>
+    <p>Lies deinen Verlauf von anderen Diensten ein. Die App erkennt die Datei selbst:</p>
+    <ul class="einfach">
+      <li><b>Netflix:</b> Konto → Profil → <b>Titelverlauf</b> → ganz unten <b>„Alle herunterladen“</b>: <a href="https://www.netflix.com/viewingactivity" target="_blank" rel="noopener">netflix.com/viewingactivity</a></li>
+      <li><b>Trakt:</b> Einstellungen → Daten → Export (JSON-Dateien): <a href="https://trakt.tv/settings/data" target="_blank" rel="noopener">trakt.tv/settings/data</a></li>
+      <li><b>Simkl / andere:</b> CSV-Datei mit Spalten für Titel und Datum</li>
+      <li><b>Filmarchiv-Sicherung</b> (.json)</li>
+    </ul>
+    <div class="knoepfe">
+      <button class="btn" id="import" type="button">📥 Datei auswählen</button>
+      <input type="file" id="import-datei" accept=".json,.csv,text/csv,application/json" multiple hidden>
+    </div>
+    <div id="import-status" class="quelle"></div>
+
+    <h2>🔧 Daten vervollständigen</h2>
+    <p>Importierte Titel bekommen hier Plakat, Laufzeit, Genres und IMDb-Bewertung aus der Datenbank. Doppelte Einträge werden zusammengeführt, und Netflix-Folgen werden ihrer Serie zugeordnet.</p>
+    <div id="vervollst-status" class="quelle"></div>
+    <div class="knoepfe"><button class="btn zwei" id="vervollst-start" type="button">🔧 Jetzt vervollständigen</button></div>
+
+    <h2>🔄 Sync zwischen Geräten</h2>
+    <div id="sync-bereich"></div>
+
     <h2>Sicherung</h2>
-    <p>Deine Liste wird nur auf diesem Gerät gespeichert. Mit einer Sicherungsdatei kannst du sie aufs Handy, Tablet oder einen anderen PC übertragen.</p>
+    <p>Eine Sicherungsdatei enthält alle Einträge. Gut zum Aufheben oder zum Übertragen ohne Sync.</p>
     <div class="knoepfe">
       <button class="btn zwei" id="export" type="button">⬇ Sicherung herunterladen</button>
-      <button class="btn zwei" id="import" type="button">⬆ Sicherung einlesen</button>
-      <input type="file" id="import-datei" accept=".json,application/json" hidden>
     </div>
     <div class="knoepfe"><button class="btn zwei" id="alles-loeschen" type="button" style="color:#ff8f9b">Alle Einträge löschen</button></div>
 
@@ -247,8 +363,9 @@ button.person .bild{margin:0 auto 5px}
   <button class="an" data-seite="suche" type="button"><span>🔍</span>Suchen</button>
   <button data-seite="entdecken" type="button"><span>🧭</span>Entdecken</button>
   <button data-seite="gesehen" type="button"><span>✅</span>Gesehen</button>
-  <button data-seite="merken" type="button"><span>🔖</span>Merkliste</button>
-  <button data-seite="einst" type="button"><span>⚙️</span>Einstellungen</button>
+  <button data-seite="merken" type="button"><span>🔖</span>Listen</button>
+  <button data-seite="stat" type="button"><span>📊</span>Statistik</button>
+  <button data-seite="einst" type="button"><span>⚙️</span>Mehr</button>
 </nav>
 
 <div id="detail" aria-modal="true" role="dialog">
@@ -265,6 +382,15 @@ button.person .bild{margin:0 auto 5px}
     <div class="feld"><label for="f-notiz">Notiz (z. B. „bis Staffel 3“)</label><input type="text" id="f-notiz" maxlength="200"></div>
     <div class="reihe"><button class="btn zwei" type="button" id="dlg-abbrechen">Abbrechen</button><button class="btn" type="submit">Speichern</button></div>
   </form>
+</div>
+
+<div class="schleier" id="listen-schleier">
+  <div class="dialog">
+    <h3 id="ldlg-titel">Zu Listen hinzufügen</h3>
+    <div id="ldlg-listen" class="ldlg"></div>
+    <div class="feld" style="display:flex;gap:8px;margin-top:10px"><input type="text" id="ldlg-neu" placeholder="Neue Liste, z. B. „Mit Familie“" maxlength="40"><button class="btn zwei" type="button" id="ldlg-anlegen">+</button></div>
+    <div class="reihe"><button class="btn" type="button" id="ldlg-fertig">Fertig</button></div>
+  </div>
 </div>
 
 <div class="toast" id="toast"></div>
@@ -284,7 +410,22 @@ const jahr = s => (String(s||'').match(/\d{4}/)||[''])[0];
 
 let tmdbKey = ''; try { tmdbKey = localStorage.getItem(KEY_SPEICHER) || ''; } catch(e) {}
 let liste = []; try { liste = JSON.parse(localStorage.getItem(SPEICHER) || '[]'); if(!Array.isArray(liste)) liste = []; } catch(e) { liste = []; }
-function sichern(){ try { localStorage.setItem(SPEICHER, JSON.stringify(liste)); return true; } catch(e) { toast('Speichern nicht möglich'); return false; } }
+const lade = (k, std) => { try { const v = JSON.parse(localStorage.getItem(k)); return v ?? std; } catch(e){ return std; } };
+const ablegen = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); return true; } catch(e){ return false; } };
+// Gelöschte Einträge merken (für den Abgleich zwischen Geräten)
+let geloescht = lade('filmarchiv-geloescht', {});
+// Eigene Listen und Abos (mit Zeitstempel für den Sync)
+let einstellungen = lade('filmarchiv-einst', {listen:[], abos:[], geaendert:0});
+if(!Array.isArray(einstellungen.listen)) einstellungen.listen = [];
+if(!Array.isArray(einstellungen.abos)) einstellungen.abos = [];
+function einstSichern(){ einstellungen.geaendert = Date.now(); ablegen('filmarchiv-einst', einstellungen); syncBald(); }
+function sichern(ohneSync){
+  const ok = ablegen(SPEICHER, liste) && ablegen('filmarchiv-geloescht', geloescht);
+  if(!ok) toast('Speicher voll – bitte Sicherung herunterladen');
+  if(!ohneSync) syncBald();
+  return ok;
+}
+let syncBald = () => {}; // wird vom Sync-Teil ersetzt
 
 function toast(t){ const el=$('toast'); el.textContent=t; el.classList.add('an'); clearTimeout(toast.z); toast.z=setTimeout(()=>el.classList.remove('an'),2200); }
 
@@ -356,7 +497,7 @@ async function personDaten(p){
     geburt:d.birthday, tod:d.deathday, ort:d.place_of_birth, bio, bioEnglisch, werke };
 }
 
-let entSeite = 1, entTyp = 'movie', entDienst = '', entGenre = '', entZeit = '', entSort = 'beliebt', entDienste = null, entGenres = {}, entNr = 0;
+let entSeite = 1, entTyp = 'movie', entDienst = (()=>{ try { const v = JSON.parse(localStorage.getItem('filmarchiv-ent-dienst')); if(v!==null) return v; } catch(e){} try { return (JSON.parse(localStorage.getItem('filmarchiv-einst'))?.abos||[]).length ? 'abos' : ''; } catch(e){ return ''; } })(), entGenre = '', entZeit = '', entSort = 'beliebt', entDienste = null, entGenres = {}, entNr = 0;
 const ZEITEN = [['','Alle'],['2020-','ab 2020'],['2010-2019','2010er'],['2000-2009','2000er'],['1990-1999','90er'],['1980-1989','80er'],['-1979','älter']];
 async function entdecken(neu){
   if(!tmdbKey){ $('ent-hinweis').innerHTML = `<div class="hinweisbox"><b>Entdecken braucht den kostenlosen TMDB-Schlüssel.</b> Damit kannst du z. B. „Komödien auf Netflix aus den 90ern“ oder „beste Serien auf Prime“ anzeigen lassen.<br><button class="btn klein" type="button" data-zu="einst">Zu den Einstellungen</button></div>`; $('ent-filter').style.display='none'; $('ent-ergebnis').innerHTML=''; return; }
@@ -367,7 +508,8 @@ async function entdecken(neu){
     if(!entGenres[entTyp]){ const g = await tmdb(`/genre/${entTyp}/list`); entGenres[entTyp] = (g.genres||[]).map(x=>[String(x.id), x.name]); }
   } catch(e){ $('ent-ergebnis').innerHTML = '<div class="leer">Konnte nicht geladen werden. Bist du online?</div>'; return; }
   if(entGenre && !entGenres[entTyp].some(([w])=>w===entGenre)) entGenre='';
-  $('ent-dienst').innerHTML = chips([['','Alle'], ...entDienste], entDienst, 'dienst');
+  if(entDienst==='abos' && !einstellungen.abos.length) entDienst = '';
+  $('ent-dienst').innerHTML = chips([['','Alle'], ...(einstellungen.abos.length ? [['abos','⭐ Meine Abos']] : []), ...entDienste], entDienst, 'dienst');
   $('ent-genre').innerHTML = chips([['','Alle'], ...entGenres[entTyp]], entGenre, 'genre');
   $('ent-zeit').innerHTML = chips(ZEITEN, entZeit, 'zeit');
   if(neu){ entSeite = 1; $('ent-ergebnis').innerHTML = '<div class="laden">Wird geladen …</div>'; }
@@ -376,7 +518,7 @@ async function entdecken(neu){
   const p = {page:String(entSeite), include_adult:'false', sort_by: entSort==='bewertung'?'vote_average.desc':(entSort==='neu'?datumsFeld+'.desc':'popularity.desc'), watch_region:'DE'};
   if(entSort==='bewertung') p['vote_count.gte'] = entTyp==='movie' ? '300' : '150';
   if(entSort==='neu'){ p[datumsFeld+'.lte'] = heute(); p['vote_count.gte'] = '5'; }
-  if(entDienst){ p.with_watch_providers = entDienst; p.with_watch_monetization_types = 'flatrate'; }
+  if(entDienst){ p.with_watch_providers = entDienst==='abos' ? aboIds().join('|') : entDienst; p.with_watch_monetization_types = 'flatrate'; }
   if(entGenre) p.with_genres = entGenre;
   if(entZeit){ const [von,bis] = entZeit.split('-'); if(von) p[datumsFeld+'.gte'] = von+'-01-01'; if(bis) p[datumsFeld+'.lte'] = bis+'-12-31'; }
   try {
@@ -394,7 +536,7 @@ async function entdecken(neu){
 }
 document.addEventListener('click', ev => {
   const b = ev.target.closest('#ent-filter [data-typ],#ent-filter [data-dienst],#ent-filter [data-genre],#ent-filter [data-zeit],#ent-filter [data-sort]');
-  if(b){ const ds = b.dataset; if('typ' in ds) entTyp = ds.typ; if('dienst' in ds) entDienst = ds.dienst; if('genre' in ds) entGenre = ds.genre; if('zeit' in ds) entZeit = ds.zeit; if('sort' in ds) entSort = ds.sort;
+  if(b){ const ds = b.dataset; if('typ' in ds) entTyp = ds.typ; if('dienst' in ds){ entDienst = ds.dienst; try { localStorage.setItem('filmarchiv-ent-dienst', JSON.stringify(entDienst)); } catch(e){} } if('genre' in ds) entGenre = ds.genre; if('zeit' in ds) entZeit = ds.zeit; if('sort' in ds) entSort = ds.sort;
     if('typ' in ds) document.querySelectorAll('#ent-typ .chip').forEach(c=>c.classList.toggle('an', c.dataset.typ===entTyp));
     if('sort' in ds) document.querySelectorAll('#ent-sort .chip').forEach(c=>c.classList.toggle('an', c.dataset.sort===entSort));
     entdecken(true); return; }
@@ -410,6 +552,7 @@ async function trends(){
   const out=[]; for(let i=0;i<12;i++){ if(a[i])out.push(a[i]); if(b[i])out.push(b[i]); } return out;
 }
 
+const folgeKurz = f => f ? {s:f.season_number, e:f.episode_number, datum:f.air_date||'', name:f.name||''} : null;
 async function details(t){
   if(t.quelle==='tmdb'){
     const typ = t.typ==='serie' ? 'tv' : 'movie';
@@ -437,6 +580,11 @@ async function details(t){
       anbieter, trailer: trailer ? 'https://www.youtube.com/watch?v='+trailer.key : '',
       land: (d.production_countries||[]).map(c=>c.name).join(', '), sender: (d.networks||[]).map(n=>n.name).join(', ')
     };
+    if(typ==='tv'){
+      det.staffelInfo = (d.seasons||[]).filter(s=>s.season_number>0 && s.episode_count>0).map(s=>({n:s.season_number, anzahl:s.episode_count, name:s.name}));
+      det.letzteFolge = folgeKurz(d.last_episode_to_air);
+      det.naechsteFolge = folgeKurz(d.next_episode_to_air);
+    }
     // IMDb-Bewertung zusätzlich holen
     if(imdb){ try { const c = await cine(`/meta/${typ==='tv'?'series':'movie'}/${imdb}.json`); det.imdbWert = Number(c.meta?.imdbRating)||null; } catch(e){} }
     return det;
@@ -450,25 +598,47 @@ async function details(t){
 }
 
 /* ---------- Eigene Liste ---------- */
-function finde(t){ return liste.find(e => e.key===t.key || (t.imdb && e.imdb===t.imdb)); }
+// Schneller Zugriff: Schlüssel → Eintrag
+let index = new Map();
+function neuIndex(){ index = new Map(); for(const e of liste){ index.set(e.key, e); if(e.imdb) index.set('imdb:'+e.imdb, e); } }
+neuIndex();
+function finde(t){ if(!t) return null; return index.get(t.key) || (t.imdb && index.get('imdb:'+t.imdb)) || null; }
 function speichereEintrag(t, felder){
   let e = finde(t);
-  if(!e){ e = {key:t.key, quelle:t.quelle, id:t.id, imdb:t.imdb||'', typ:t.typ, titel:t.titel, jahr:t.jahr, poster:t.poster, hinzu:new Date().toISOString()}; liste.push(e); }
+  if(!e){ e = {key:t.key, quelle:t.quelle, id:t.id, imdb:t.imdb||'', typ:t.typ, titel:t.titel, jahr:t.jahr, poster:t.poster, hinzu:new Date().toISOString()}; liste.push(e); delete geloescht[t.key]; }
   Object.assign(e, felder, {titel:t.titel||e.titel, jahr:t.jahr||e.jahr, poster:t.poster||e.poster, imdb:t.imdb||e.imdb});
-  sichern(); return e;
+  // Infos aus der Datenbank mitspeichern (für Statistik)
+  if(t.laufzeit) e.laufzeit = t.laufzeit;
+  if(t.genres?.length) e.genres = t.genres;
+  if(t.imdbWert) e.imdbWert = t.imdbWert;
+  if(t.staffelInfo) e.staffelInfo = t.staffelInfo;
+  if(t.letzteFolge !== undefined) e.letzteFolge = t.letzteFolge;
+  if(t.naechsteFolge !== undefined) e.naechsteFolge = t.naechsteFolge;
+  if(t.status && t.typ==='serie' && !['gesehen','merken','liste'].includes(t.status)) e.serienStatus = t.status;
+  e.geaendert = Date.now();
+  neuIndex(); sichern(); return e;
 }
-function entferne(t){ const e = finde(t); if(e){ liste = liste.filter(x=>x!==e); sichern(); } }
+function entferne(t){ const e = finde(t); if(e){ liste = liste.filter(x=>x!==e); geloescht[e.key] = Date.now(); neuIndex(); sichern(); } }
+const sichtbar = e => e.status==='gesehen' || e.status==='merken';
 
 /* ---------- Darstellung ---------- */
 function posterHTML(url, typ){ return `<div class="poster">${url?`<img src="${esc(url)}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()">`:''}${url?'':(typ==='serie'?'📺':'🎬')}</div>`; }
 function kachel(t){
   const e = finde(t);
-  const m = e ? (e.status==='gesehen' ? '<span class="marke">✓ Gesehen</span>' : '<span class="marke m">Gemerkt</span>') : '';
-  return `<button class="kachel" type="button" data-t='${esc(JSON.stringify(t))}'>${m}${posterHTML(t.poster,t.typ)}<div class="t">${esc(t.titel)}</div><div class="j">${esc([t.jahr, t.typ==='serie'?'Serie':'Film'].filter(Boolean).join(' · '))}</div></button>`;
+  const m = e && sichtbar(e) ? (e.status==='gesehen' ? '<span class="marke">✓ Gesehen</span>' : '<span class="marke m">Gemerkt</span>') : '';
+  const kurz = {key:t.key, quelle:t.quelle, id:t.id, imdb:t.imdb, typ:t.typ, titel:t.titel, jahr:t.jahr, poster:t.poster};
+  return `<button class="kachel" type="button" data-t='${esc(JSON.stringify(kurz))}'>${m}${posterHTML(t.poster,t.typ)}<div class="t">${esc(t.titel)}</div><div class="j">${esc([t.jahr, t.typ==='serie'?'Serie':'Film'].filter(Boolean).join(' · '))}</div></button>`;
 }
-function zeile(e){
-  const u = e.status==='gesehen' ? [e.dienst, e.sterne?'★'.repeat(e.sterne):'', e.notiz].filter(Boolean).join(' · ') : [e.typ==='serie'?'Serie':'Film', e.jahr].filter(Boolean).join(' · ');
-  return `<button class="zeile" type="button" data-t='${esc(JSON.stringify(e))}'><div class="mini">${posterHTML(e.poster,e.typ)}</div><div class="mitte"><div class="t">${esc(e.titel)}${e.jahr&&e.status==='gesehen'?` <span style="color:var(--leise);font-weight:500">(${esc(e.jahr)})</span>`:''}</div><div class="u">${esc(u||'')}</div></div>${e.status==='gesehen'?`<div class="d">${esc(datumDE(e.datum))}</div>`:''}</button>`;
+const wertFmt = w => Number(w).toLocaleString('de-DE',{minimumFractionDigits:1,maximumFractionDigits:1});
+function zeile(e, datumAnzeige){
+  const fz = e.typ==='serie' ? folgenZahl(e) : 0;
+  const teile = e.status==='gesehen'
+    ? [e.dienst, fz ? `${fz} Folge${fz>1?'n':''}` : (e.typ==='serie' ? 'Serie' : ''), e.sterne?'★'.repeat(e.sterne):'', e.notiz]
+    : [e.typ==='serie'?'Serie':'Film', e.jahr, e.anbieterJetzt?.length ? '▶ ' + e.anbieterJetzt.join(', ') : ''];
+  const u = teile.filter(Boolean).map(esc).join(' · ');
+  const imdb = e.imdbWert ? `<span class="imdb klein">IMDb</span> ${wertFmt(e.imdbWert)}` : '';
+  const kurz = {key:e.key, quelle:e.quelle, id:e.id, imdb:e.imdb, typ:e.typ, titel:e.titel, jahr:e.jahr, poster:e.poster};
+  return `<button class="zeile" type="button" data-t='${esc(JSON.stringify(kurz))}'><div class="mini">${posterHTML(e.poster,e.typ)}</div><div class="mitte"><div class="t">${esc(e.titel)}${e.jahr&&e.status==='gesehen'?` <span style="color:var(--leise);font-weight:500">(${esc(e.jahr)})</span>`:''}</div><div class="u">${u}${imdb ? (u?' · ':'') + imdb : ''}</div></div>${e.status==='gesehen'?`<div class="d">${esc(datumDE(datumAnzeige || e.datum))}</div>`:''}</button>`;
 }
 document.addEventListener('click', ev => { const b = ev.target.closest('[data-t]'); if(b){ try { oeffne(JSON.parse(b.dataset.t)); } catch(e){} } });
 
@@ -483,14 +653,14 @@ async function zeigeSuche(){
   $('q-weg').classList.toggle('an', !!text);
   if(!text){
     const zuletzt = liste.filter(e=>e.status==='gesehen').sort((a,b)=>(b.datum||'').localeCompare(a.datum||'')).slice(0,12);
-    ziel.innerHTML = (zuletzt.length?`<h2>Zuletzt gesehen</h2><div class="raster">${zuletzt.map(kachel).join('')}</div>`:'') + `<h2>${tmdbKey?'Diese Woche beliebt':'Beliebte Filme & Serien'}</h2><div class="laden">Wird geladen …</div>`;
+    ziel.innerHTML = newsHTML() + weiterschauenHTML() + (zuletzt.length?`<h2>Zuletzt gesehen</h2><div class="raster">${zuletzt.map(kachel).join('')}</div>`:'') + `<h2>${tmdbKey?'Diese Woche beliebt':'Beliebte Filme & Serien'}</h2><div class="laden">Wird geladen …</div>`;
     try { const t = await trends(); if(nr!==suchNr) return; ziel.querySelector('.laden').outerHTML = `<div class="raster">${t.map(kachel).join('')}</div>`; }
     catch(e){ if(nr!==suchNr) return; const l=ziel.querySelector('.laden'); if(l) l.textContent = tmdbKey ? 'Konnte nicht geladen werden. Stimmt der TMDB-Schlüssel? Bist du online?' : 'Konnte nicht geladen werden. Bist du online?'; }
     return;
   }
   // Zuerst in der eigenen Liste suchen (sofort, auch offline)
   const n = norm(text);
-  const eigene = liste.filter(e => norm(e.titel).includes(n));
+  const eigene = liste.filter(e => sichtbar(e) && norm(e.titel).includes(n));
   let html = '';
   if(eigene.length){
     const g = eigene.filter(e=>e.status==='gesehen');
@@ -601,7 +771,8 @@ function zeigeGesehen(){
   const alle = liste.filter(e=>e.status==='gesehen');
   const jahrJetzt = String(new Date().getFullYear());
   const passtTyp = e => !filterTyp || (filterTyp==='serie' ? e.typ==='serie' : e.typ!=='serie');
-  const passtJahr = e => !filterJahr || (e.datum||'').startsWith(filterJahr);
+  const passtJahr = e => !filterJahr || tage(e).some(d=>d.startsWith(filterJahr));
+  const tagIm = e => { if(!filterJahr) return e.datum||''; return tage(e).filter(d=>d.startsWith(filterJahr)).sort().pop() || e.datum || ''; };
   const passtDienst = e => !filterDienst || e.dienst===filterDienst;
 
   // Kacheln oben: antippen setzt den Filter
@@ -609,7 +780,7 @@ function zeigeGesehen(){
   $('zahlen').innerHTML =
     `<button type="button" class="zahl ${!filterTyp&&!filterJahr&&!filterDienst?'an':''}" data-kachel="alle"><b>${zahlFmt(alle.length)}</b><span>Gesehen gesamt</span></button>`+
     `<button type="button" class="zahl ${filterTyp?'an':''}" data-kachel="typ"><b>${zahlFmt(alle.filter(e=>e.typ!=='serie'&&passtJahr(e)).length)} / ${zahlFmt(alle.filter(e=>e.typ==='serie'&&passtJahr(e)).length)}</b><span>Filme / Serien${filterJahr?' '+filterJahr:''}</span></button>`+
-    `<button type="button" class="zahl ${filterJahr?'an':''}" data-kachel="jahr"><b>${zahlFmt(alle.filter(e=>(e.datum||'').startsWith(jahrKachel)&&passtTyp(e)).length)}</b><span>Im Jahr ${jahrKachel}</span></button>`;
+    `<button type="button" class="zahl ${filterJahr?'an':''}" data-kachel="jahr"><b>${zahlFmt(alle.filter(e=>tage(e).some(d=>d.startsWith(jahrKachel))&&passtTyp(e)).length)}</b><span>Im Jahr ${jahrKachel}</span></button>`;
 
   // Art: Alle / Filme / Serien (Zahlen passend zum gewählten Jahr)
   const basisTyp = alle.filter(e=>passtJahr(e)&&passtDienst(e));
@@ -618,7 +789,7 @@ function zeigeGesehen(){
 
   // Jahr: alle Jahre, in denen etwas gesehen wurde (neueste zuerst)
   const basisJahr = alle.filter(e=>passtTyp(e)&&passtDienst(e));
-  const jahre = {}; basisJahr.forEach(e=>{ const j=(e.datum||'').slice(0,4); if(/^\d{4}$/.test(j)) jahre[j]=(jahre[j]||0)+1; });
+  const jahre = {}; basisJahr.forEach(e=>{ for(const j of new Set(tage(e).map(d=>d.slice(0,4)))) if(/^\d{4}$/.test(j)) jahre[j]=(jahre[j]||0)+1; });
   if(filterJahr && !jahre[filterJahr]) jahre[filterJahr] = 0;
   $('filter-jahr').innerHTML = [`<button class="chip ${filterJahr?'':'an'}" data-fjahr="" type="button">Alle</button>`,
     ...Object.keys(jahre).sort((a,b)=>b.localeCompare(a)).map(j=>`<button class="chip ${j===filterJahr?'an':''}" data-fjahr="${j}" type="button">${j}<small>${zahlFmt(jahre[j])}</small></button>`)].join('');
@@ -634,21 +805,24 @@ function zeigeGesehen(){
 
   // Liste
   const n = norm($('q-gesehen').value);
-  const sicht = alle.filter(e=>passtTyp(e)&&passtJahr(e)&&passtDienst(e)&&(!n||norm(e.titel).includes(n))).sort((a,b)=>(b.datum||'').localeCompare(a.datum||''));
+  const sicht = alle.filter(e=>passtTyp(e)&&passtJahr(e)&&passtDienst(e)&&(!n||norm(e.titel).includes(n))).map(e=>({e, tag:tagIm(e)})).sort((a,b)=>b.tag.localeCompare(a.tag));
+  const offen = tmdbKey ? offenZahl() : 0;
+  $('gesehen-banner').innerHTML = offen && !vervollstLaeuft ? `<div class="hinweisbox"><b>${zahlFmt(offen)} Titel ohne Plakat und Infos.</b> Die App kann sie aus der Datenbank ergänzen (Plakat, Laufzeit, Genres, IMDb) und Serienfolgen zuordnen.<br><button class="btn klein" type="button" id="banner-vervollst">🔧 Jetzt vervollständigen</button></div>` : (vervollstLaeuft ? `<div class="hinweisbox">🔧 Infos werden ergänzt: ${vervollstStand.fertig} von ${vervollstStand.gesamt} …</div>` : '');
   const aktiv = filterTyp||filterJahr||filterDienst||n;
   $('treffer-gesehen').innerHTML = aktiv ? `<span>${zahlFmt(sicht.length)} ${sicht.length===1?'Eintrag':'Einträge'}</span><button type="button" id="filter-weg">✕ Filter zurücksetzen</button>` : '';
   if(!sicht.length){ $('liste-gesehen').innerHTML = `<div class="leer">${alle.length?'Keine Treffer für diese Filter.':'Noch nichts als gesehen markiert.<br>Suche einen Titel und tippe auf „Gesehen“.'}</div>`; return; }
   // nach Monat gruppiert, mit Anzahl pro Monat
-  const proMonat = {}; sicht.forEach(e=>{ const m=(e.datum||'').slice(0,7); proMonat[m]=(proMonat[m]||0)+1; });
+  const proMonat = {}; sicht.forEach(({tag})=>{ const m=tag.slice(0,7); proMonat[m]=(proMonat[m]||0)+1; });
   let html = '', letzter = null;
-  for(const e of sicht.slice(0, gesehenAnzahl)){
-    const m = (e.datum||'').slice(0,7);
+  for(const {e, tag} of sicht.slice(0, gesehenAnzahl)){
+    const m = tag.slice(0,7);
     if(m!==letzter){ letzter = m; const [y,mo] = m.split('-'); html += `<div class="monat"><span>${mo?MONATE[+mo-1]+' '+y:'Ohne Datum'}</span><span>${zahlFmt(proMonat[m])}</span></div>`; }
-    html += zeile(e);
+    html += zeile(e, tag);
   }
   if(sicht.length > gesehenAnzahl) html += `<div style="text-align:center;margin:14px 0"><button class="btn zwei" type="button" id="gesehen-mehr">Weitere anzeigen (${zahlFmt(sicht.length-gesehenAnzahl)} übrig)</button></div>`;
   $('liste-gesehen').innerHTML = html;
 }
+document.addEventListener('click', ev=>{ if(ev.target.closest('#banner-vervollst')){ vervollstaendigen(); setTimeout(zeigeGesehen, 300); } });
 document.addEventListener('click', ev=>{
   const t = ev.target.closest('[data-ftyp],[data-fjahr],[data-kachel],#filter-weg,#gesehen-mehr');
   if(!t || !t.closest('#s-gesehen')) return;
@@ -674,7 +848,7 @@ function zeigeSeite(s){
   aktuelleSeite = s;
   document.querySelectorAll('.seite').forEach(x=>x.classList.toggle('an', x.id==='s-'+s));
   document.querySelectorAll('nav.unten button').forEach(b=>b.classList.toggle('an', b.dataset.seite===s));
-  if(s==='gesehen') zeigeGesehen(); if(s==='merken') zeigeMerken(); if(s==='einst') $('tmdb-key').value = tmdbKey;
+  if(s==='gesehen') zeigeGesehen(); if(s==='merken') zeigeListen(); if(s==='stat') zeigeStatistik(); if(s==='einst') zeigeEinst();
   if(s==='suche') zeigeSuche();
   if(s==='entdecken' && (!$('ent-raster') || !tmdbKey)) entdecken(true);
   window.scrollTo(0,0);
@@ -696,7 +870,8 @@ async function ladeTitel(eintrag){
   const vorher = zwischenspeicher.get(t.key);
   if(vorher){ aktuell = vorher; zeichneDetail(vorher, false); return; }
   zeichneDetail(t, true);
-  try { const d = await details(t); zwischenspeicher.set(t.key, d); if(aktuell!==t) return; aktuell = d; zeichneDetail(d, false);
+  try { const quelle = (t.quelle==='tmdb' || t.quelle==='cine') ? t : await aufloesen(t);
+    const d = await details(quelle); zwischenspeicher.set(t.key, d); zwischenspeicher.set(d.key, d); if(aktuell!==t) return; aktuell = d; zeichneDetail(d, false);
     if(finde(d)) speichereEintrag(d, {}); // Daten in der Liste auffrischen
   } catch(err){ if(aktuell!==t) return; const l = $('detail-inhalt').querySelector('.laden'); if(l) l.textContent = 'Infos konnten nicht geladen werden. Bist du online?'; }
 }
@@ -742,21 +917,35 @@ function anbieterHTML(a, titel){
     : `<p class="text" style="font-size:14px">Mit TMDB-Schlüssel (Einstellungen) siehst du hier direkt, wo der Titel läuft.</p><a class="btn zwei klein" href="${js}" target="_blank" rel="noopener">Bei JustWatch nachsehen ↗</a>`;
   const gruppen = [['flatrate','Im Abo enthalten'],['free','Kostenlos'],['ads','Kostenlos mit Werbung'],['rent','Leihen'],['buy','Kaufen']];
   const link = a.link || js;
-  const teile = gruppen.filter(([k])=>a[k]?.length).map(([k,name])=>`<div class="gruppe"><small>${name}</small><div class="logos">${a[k].map(p=>`<a href="${esc(link)}" target="_blank" rel="noopener">${p.logo_path?`<img src="${IMG}w92${esc(p.logo_path)}" alt="" referrerpolicy="no-referrer" onerror="this.remove()">`:''}${esc(p.provider_name)}</a>`).join('')}</div></div>`);
-  return `<div class="anbieter">${teile.join('') || '<p class="text" style="font-size:14px">Aktuell bei keinem Dienst in Deutschland.</p>'}</div><div class="quelle">Streaming-Angebote in Deutschland · Quelle: JustWatch</div>`;
+  const meine = aboIds();
+  const imAbo = (a.flatrate||[]).filter(p=>meine.includes(String(p.provider_id))).map(p=>p.provider_name);
+  const aboZeile = meine.length ? (imAbo.length ? `<div class="abohinweis ja">⭐ In deinem Abo: <b>${esc(imAbo.join(', '))}</b></div>` : `<div class="abohinweis">Nicht in deinen Abos${a.flatrate?.length ? ' – läuft im Abo bei ' + esc(a.flatrate.map(p=>p.provider_name).join(', ')) : ''}</div>`) : '';
+  const teile = gruppen.filter(([k])=>a[k]?.length).map(([k,name])=>`<div class="gruppe"><small>${name}</small><div class="logos">${a[k].map(p=>`<a href="${esc(link)}" target="_blank" rel="noopener" class="${meine.includes(String(p.provider_id))?'meins':''}">${meine.includes(String(p.provider_id))?'⭐ ':''}${p.logo_path?`<img src="${IMG}w92${esc(p.logo_path)}" alt="" referrerpolicy="no-referrer" onerror="this.remove()">`:''}${esc(p.provider_name)}</a>`).join('')}</div></div>`);
+  return aboZeile + `<div class="anbieter">${teile.join('') || '<p class="text" style="font-size:14px">Aktuell bei keinem Dienst in Deutschland.</p>'}</div><div class="quelle">Streaming-Angebote in Deutschland · Quelle: JustWatch</div>`;
 }
 
+function statusHTML(d){
+  const e = finde(d);
+  if(!e) return `<div class="status" id="detail-status"><b>Noch nicht in deiner Liste</b>Schon angeschaut? Dann markiere den Titel als gesehen.</div>`;
+  const listenNamen = (e.listen||[]).map(listenName).filter(Boolean);
+  if(e.status==='gesehen'){
+    const fz = e.typ==='serie' ? folgenZahl(e) : 0;
+    const zeilen = [e.dienst, fz ? `${fz} Folgen` : '', e.sterne?'Meine Bewertung: '+'★'.repeat(e.sterne):'', e.notiz].filter(Boolean).map(esc).join(' · ');
+    const mal = e.typ!=='serie' && e.verlauf?.length > 1 ? ` · ${e.verlauf.length}× geschaut` : '';
+    return `<div class="status ja" id="detail-status"><b>✓ ${e.typ==='serie' ? 'Zuletzt gesehen' : 'Gesehen'} am ${esc(datumDE(e.datum))}${mal}</b>${zeilen}${listenNamen.length ? `<br>📋 ${esc(listenNamen.join(', '))}` : ''}</div>`;
+  }
+  if(e.status==='merken') return `<div class="status" id="detail-status"><b>🔖 Auf deiner Merkliste</b>Noch nicht gesehen.${listenNamen.length ? ` · 📋 ${esc(listenNamen.join(', '))}` : ''}</div>`;
+  return `<div class="status" id="detail-status"><b>📋 In deinen Listen</b>${esc(listenNamen.join(', '))}</div>`;
+}
 function zeichneDetail(d, laden){
   const e = finde(d);
   const meta = [d.typ==='serie'?'Serie':'Film', d.jahr, d.laufzeit?`${d.laufzeit} Min.`:'', d.staffeln?`${d.staffeln} Staffel${d.staffeln>1?'n':''}`:'', d.fsk?`FSK ${d.fsk}`:''].filter(Boolean).concat(d.genres||[]);
   const imdbLink = d.imdb ? `https://www.imdb.com/title/${encodeURIComponent(d.imdb)}/` : `https://www.imdb.com/find/?q=${encodeURIComponent(d.titel)}`;
-  const status = e ? (e.status==='gesehen'
-      ? `<div class="status ja"><b>✓ Gesehen am ${esc(datumDE(e.datum))}</b>${[e.dienst, e.sterne?'Meine Bewertung: '+'★'.repeat(e.sterne):'', e.notiz].filter(Boolean).map(esc).join(' · ')}</div>`
-      : `<div class="status"><b>🔖 Auf deiner Merkliste</b>Noch nicht gesehen.</div>`)
-    : `<div class="status"><b>Noch nicht in deiner Liste</b>Schon angeschaut? Dann markiere den Titel als gesehen.</div>`;
+  const status = statusHTML(d);
   const knoepfe = `<div class="knoepfe">
       <button class="btn" type="button" id="b-gesehen">${e?.status==='gesehen'?'✎ Ändern':'✓ Gesehen'}</button>
       ${e?.status==='gesehen'?'':`<button class="btn zwei" type="button" id="b-merken">${e?.status==='merken'?'🔖 Gemerkt – entfernen':'🔖 Merken'}</button>`}
+      <button class="btn zwei" type="button" id="b-listen">📋 Listen</button>
       ${e?.status==='gesehen'?`<button class="btn zwei" type="button" id="b-entfernen">Aus Liste entfernen</button>`:''}
       ${d.trailer?`<a class="btn zwei" href="${esc(d.trailer)}" target="_blank" rel="noopener">▶ Trailer</a>`:''}
     </div>`;
@@ -777,6 +966,7 @@ function zeichneDetail(d, laden){
     <div class="dinhalt">
       ${status}${knoepfe}
       ${laden ? '<div class="laden">Infos werden geladen …</div>' : `
+        ${d.typ==='serie' && d.staffelInfo?.length && d.quelle==='tmdb' ? `<div class="abschnitt fortschritt" id="fortschritt">${fortschrittHTML(d)}</div>` : ''}
         ${d.slogan?`<p class="text" style="font-style:italic;color:var(--leise)">„${esc(d.slogan)}“</p>`:''}
         <div class="abschnitt"><h4>Handlung</h4><p class="text">${esc(d.beschreibung || 'Keine Beschreibung vorhanden.')}</p>${d.englisch&&d.beschreibung?'<div class="quelle">Beschreibung auf Englisch. Mit TMDB-Schlüssel auf Deutsch.</div>':''}</div>
         <div class="abschnitt"><h4>Wo läuft das?</h4>${anbieterHTML(d.anbieter, d.titel)}</div>
@@ -787,7 +977,9 @@ function zeichneDetail(d, laden){
       `}
     </div>`;
   $('b-gesehen').onclick = () => dialog(d);
-  if($('b-merken')) $('b-merken').onclick = () => { if(e?.status==='merken'){ entferne(d); toast('Von der Merkliste entfernt'); } else { speichereEintrag(d,{status:'merken'}); toast('Auf die Merkliste gesetzt'); } zeichneDetail(aktuell||d, laden); };
+  $('b-listen').onclick = () => listenDialog(d);
+  if(!laden && $('fortschritt')) naechsteNameZeigen(d);
+  if($('b-merken')) $('b-merken').onclick = () => { if(e?.status==='merken'){ if(e.listen?.length) speichereEintrag(d,{status:'liste'}); else entferne(d); toast('Von der Merkliste entfernt'); } else { speichereEintrag(d,{status:'merken'}); toast('Auf die Merkliste gesetzt'); } zeichneDetail(aktuell||d, laden); };
   if($('b-entfernen')) $('b-entfernen').onclick = () => { if($('b-entfernen').dataset.sicher){ entferne(d); toast('Entfernt'); zeichneDetail(aktuell||d, laden); } else { $('b-entfernen').dataset.sicher='1'; $('b-entfernen').textContent='Wirklich entfernen?'; } };
 }
 
@@ -798,11 +990,7 @@ function dialog(d){
   $('dlg-titel').textContent = (e?.status==='gesehen' ? 'Bearbeiten: ' : 'Gesehen: ') + d.titel;
   $('f-datum').value = e?.datum || heute(); $('f-datum').max = heute();
   // Dienst vorschlagen: bisherige Angabe oder erster Abo-Dienst aus JustWatch
-  let vorschlag = e?.dienst || '';
-  if(!vorschlag && d.anbieter?.flatrate?.length){
-    const p = d.anbieter.flatrate[0].provider_name.toLowerCase();
-    vorschlag = DIENSTE.find(x => p.includes(x.toLowerCase().split(' ')[0].replace('+',''))) || '';
-  }
+  const vorschlag = e?.dienst || dienstVorschlag(d);
   $('f-dienst').innerHTML = '<option value="">– bitte wählen –</option>' + DIENSTE.map(x=>`<option ${x===vorschlag?'selected':''}>${esc(x)}</option>`).join('');
   dlgSterne = e?.sterne || 0; sterne();
   $('f-notiz').value = e?.notiz || '';
@@ -830,29 +1018,910 @@ $('key-speichern').addEventListener('click', async ()=>{
 $('key-loeschen').addEventListener('click', ()=>{ tmdbKey=''; try{localStorage.removeItem(KEY_SPEICHER)}catch(e){} $('tmdb-key').value=''; $('key-status').textContent='Schlüssel entfernt.'; $('key-status').style.color=''; hinweisSchluessel(); });
 
 $('export').addEventListener('click', ()=>{
-  const blob = new Blob([JSON.stringify({app:'filmarchiv', version:1, erstellt:new Date().toISOString(), eintraege:liste}, null, 1)], {type:'application/json'});
+  const blob = new Blob([JSON.stringify({app:'filmarchiv', version:2, erstellt:new Date().toISOString(), eintraege:liste, einstellungen})], {type:'application/json'});
   const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `filmarchiv-sicherung-${heute()}.json`; document.body.append(a); a.click(); a.remove();
   setTimeout(()=>URL.revokeObjectURL(a.href), 4000); toast('Sicherung heruntergeladen');
-});
-$('import').addEventListener('click', ()=>$('import-datei').click());
-$('import-datei').addEventListener('change', async ev=>{
-  const f = ev.target.files[0]; ev.target.value=''; if(!f) return;
-  try {
-    const d = JSON.parse(await f.text()); const neu = Array.isArray(d) ? d : d.eintraege;
-    if(!Array.isArray(neu)) throw 0;
-    let n = 0;
-    for(const e of neu){ if(!e?.key || !e.titel) continue; const alt = liste.find(x=>x.key===e.key); if(alt) Object.assign(alt, e); else { liste.push(e); n++; } }
-    sichern(); toast(`✓ ${n} neue Einträge übernommen`);
-  } catch(e){ toast('Diese Datei ist keine Filmarchiv-Sicherung'); }
 });
 $('alles-loeschen').addEventListener('click', ev=>{
   const b = ev.currentTarget;
   if(!b.dataset.sicher){ b.dataset.sicher='1'; b.textContent='Wirklich ALLES löschen? Nochmal tippen'; setTimeout(()=>{ delete b.dataset.sicher; b.textContent='Alle Einträge löschen'; }, 5000); return; }
-  liste = []; sichern(); delete b.dataset.sicher; b.textContent='Alle Einträge löschen'; toast('Alle Einträge gelöscht');
+  const jetzt = Date.now(); for(const e of liste) geloescht[e.key] = jetzt;
+  liste = []; neuIndex(); sichern(); delete b.dataset.sicher; b.textContent='Alle Einträge löschen'; toast('Alle Einträge gelöscht');
 });
 
+/* ===================== HILFEN ===================== */
+const ROEMISCH = {i:1,ii:2,iii:3,iv:4,v:5,vi:6,vii:7,viii:8,ix:9,x:10};
+const zahlAus = s => { s = String(s||'').toLowerCase(); return ROEMISCH[s] || parseInt(s) || null; };
+function datumAus(s){
+  s = String(s||'').trim(); let m;
+  if((m = s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/))) return `${m[1]}-${m[2].padStart(2,'0')}-${m[3].padStart(2,'0')}`;
+  if((m = s.match(/^(\d{1,2})\.(\d{1,2})\.(\d{2,4})$/))){ let y=+m[3]; if(y<100) y += y>=70?1900:2000; return `${y}-${m[2].padStart(2,'0')}-${m[1].padStart(2,'0')}`; }
+  if((m = s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{2,4})$/))){ let y=+m[3]; if(y<100) y += y>=70?1900:2000; return `${y}-${m[1].padStart(2,'0')}-${m[2].padStart(2,'0')}`; }
+  const d = new Date(s); return isNaN(d) ? '' : d.toISOString().slice(0,10);
+}
+// Alle Tage, an denen ein Eintrag angeschaut wurde
+function tage(e){
+  const t = [];
+  if(e.datum) t.push(e.datum);
+  if(e.verlauf) for(const v of e.verlauf) if(v.d) t.push(v.d);
+  if(e.folgen) for(const d of Object.values(e.folgen)) if(d) t.push(d);
+  return t;
+}
+const folgenZahl = e => {
+  if(!e) return 0;
+  const k = new Set(Object.keys(e.folgen||{}));
+  let ohne = 0; for(const v of (e.verlauf||[])) { if(v.k) k.add(v.k); else ohne++; }
+  return k.size + ohne;
+};
+
+/* ===================== NETFLIX-TITEL ZERLEGEN ===================== */
+function netflixTeile(titel){
+  const t = String(titel||'').trim();
+  // "Staffel 2" darf auch ohne Folgenname stehen
+  let m = t.match(/^(.+?):\s*(Staffel|Season)\s+(\d+|[IVX]+)\b\s*(?:[:–-]\s*(.*))?$/i);
+  if(m) return {serie:true, name:m[1].trim(), staffel:zahlAus(m[3]), folge:(m[4]||'').trim()};
+  // "Teil 1" / "Part 2" nur mit Folgenname dahinter (sonst ist es oft ein Film wie „Kill Bill: Vol. 1“)
+  m = t.match(/^(.+?):\s*(Teil|Part|Volume|Vol\.|Buch|Book|Collection)\s+(\d+|[IVX]+)\b\s*:\s*(.+)$/i);
+  if(m) return {serie:true, name:m[1].trim(), staffel:zahlAus(m[3]), folge:m[4].trim()};
+  m = t.match(/^(.+?):\s*(Miniserie|Mini-Serie|Limited Series|Miniseries|Limitierte Serie)\s*(?::\s*(.*))?$/i);
+  if(m) return {serie:true, name:m[1].trim(), staffel:1, folge:(m[3]||'').trim()};
+  m = t.match(/^(.+?):\s*(?:Folge|Episode|Kapitel|Chapter)\s+(\d+)\s*$/i);
+  if(m) return {serie:true, name:m[1].trim(), staffel:null, folge:'Folge '+m[2], nummer:+m[2]};
+  const teile = t.split(/:\s+/);
+  if(teile.length >= 3) return {serie:true, name:teile[0].trim(), staffel:null, folge:teile.slice(1).join(': ')};
+  return {serie:false, name:t};
+}
+
+/* ===================== EINTRÄGE ZUSAMMENFÜHREN ===================== */
+function verschmelze(ziel, q){
+  const d = [ziel.datum, q.datum].filter(Boolean).sort();
+  if(d.length){ ziel.datum = d[d.length-1]; }
+  const erst = [ziel.erstmals, q.erstmals, ziel.datum, q.datum].filter(Boolean).sort();
+  if(erst.length) ziel.erstmals = erst[0];
+  if(q.status==='gesehen' || !ziel.status) ziel.status = q.status==='gesehen' ? 'gesehen' : (ziel.status || q.status);
+  if(ziel.status!=='gesehen' && q.status==='merken') ziel.status = 'merken';
+  for(const f of ['dienst','notiz','poster','jahr','imdb','laufzeit','imdbWert']) if(!ziel[f] && q[f]) ziel[f] = q[f];
+  if(!ziel.genres?.length && q.genres?.length) ziel.genres = q.genres;
+  ziel.sterne = Math.max(ziel.sterne||0, q.sterne||0) || ziel.sterne;
+  if(q.verlauf?.length){
+    const schon = new Set((ziel.verlauf||[]).map(v=>v.d+'|'+(v.n||'')));
+    ziel.verlauf = (ziel.verlauf||[]).concat(q.verlauf.filter(v=>!schon.has(v.d+'|'+(v.n||''))));
+  }
+  if(q.folgen) ziel.folgen = Object.assign({}, q.folgen, ziel.folgen||{});
+  if(q.listen?.length) ziel.listen = [...new Set([...(ziel.listen||[]), ...q.listen])];
+  ziel.geaendert = Date.now();
+  return ziel;
+}
+function entferneSchluessel(key){ geloescht[key] = Date.now(); }
+
+// Einträge ohne Datenbank-Zuordnung: Netflix-Folgen zu einer Serie bündeln, doppelte Filme zusammenlegen
+function aufraeumen(){
+  const gruppen = new Map(); let geaendertZahl = 0;
+  for(const e of liste){
+    if(e.quelle==='tmdb' || e.quelle==='cine') continue;
+    const p = netflixTeile(e.importTitel || e.titel);
+    const serie = p.serie || e.typ==='serie';
+    const name = p.serie ? p.name : (e.titel||'');
+    if(!name) continue;
+    const gk = (serie?'serie':'film') + ':' + norm(name);
+    if(!gruppen.has(gk)) gruppen.set(gk, []);
+    gruppen.get(gk).push({e, p, name, serie});
+  }
+  const weg = new Set(), neu = [];
+  for(const [gk, mitglieder] of gruppen){
+    const brauchtUmbau = mitglieder.length > 1 || mitglieder.some(m=>m.p.serie) || mitglieder[0].e.key !== 'import:'+gk;
+    if(!brauchtUmbau) continue;
+    const {name, serie} = mitglieder[0];
+    const ziel = {key:'import:'+gk, quelle:'import', typ: serie?'serie':'film', titel:name, status:'', verlauf:[], hinzu:new Date().toISOString()};
+    const dienste = {};
+    for(const {e, p} of mitglieder){
+      if(e.dienst) dienste[e.dienst] = (dienste[e.dienst]||0)+1;
+      const eintrag = {...e};
+      if(e.datum && !e.verlauf?.length) eintrag.verlauf = [{d:e.datum, n: serie ? (p.folge||'') : '', s: serie ? (p.staffel||null) : null}];
+      delete eintrag.dienst;
+      verschmelze(ziel, eintrag);
+      weg.add(e);
+      if(e.key !== ziel.key) entferneSchluessel(e.key);
+    }
+    ziel.dienst = Object.keys(dienste).sort((a,b)=>dienste[b]-dienste[a])[0] || '';
+    if(!ziel.status) ziel.status = 'gesehen';
+    delete geloescht[ziel.key];
+    neu.push(ziel); geaendertZahl += mitglieder.length;
+  }
+  if(!weg.size) return 0;
+  liste = liste.filter(e=>!weg.has(e));
+  // gleiche Gruppe schon vorhanden? → zusammenführen
+  for(const z of neu){ const alt = liste.find(e=>e.key===z.key); if(alt) verschmelze(alt, z); else liste.push(z); }
+  neuIndex(); sichern();
+  return geaendertZahl;
+}
+
+/* ===================== IMPORT ===================== */
+function csvLesen(roh){
+  roh = roh.replace(/^﻿/, '');
+  const ersteZeile = roh.split(/\r?\n/)[0] || '';
+  const trenner = (ersteZeile.match(/;/g)||[]).length > (ersteZeile.match(/,/g)||[]).length ? ';' : ',';
+  const zeilen = []; let feld = '', zeile = [], inAnf = false;
+  for(let i=0;i<roh.length;i++){
+    const c = roh[i];
+    if(inAnf){ if(c==='"'){ if(roh[i+1]==='"'){ feld+='"'; i++; } else inAnf=false; } else feld+=c; }
+    else if(c==='"') inAnf = true;
+    else if(c===trenner){ zeile.push(feld); feld=''; }
+    else if(c==='\n' || c==='\r'){ if(c==='\r' && roh[i+1]==='\n') i++; zeile.push(feld); if(zeile.some(x=>x.trim())) zeilen.push(zeile); feld=''; zeile=[]; }
+    else feld += c;
+  }
+  zeile.push(feld); if(zeile.some(x=>x.trim())) zeilen.push(zeile);
+  return zeilen;
+}
+function spalte(kopf, namen){ for(const n of namen){ const i = kopf.indexOf(n); if(i>=0) return i; } return -1; }
+
+// Rohdaten (einheitlich) → Einträge
+function rohZuEintrag(r, dienstStd){
+  const typ = r.typ==='serie' ? 'serie' : 'film';
+  let key, quelle = 'import', id;
+  if(r.tmdb){ key = `tmdb:${typ==='serie'?'tv':'movie'}:${r.tmdb}`; quelle = 'tmdb'; id = +r.tmdb; }
+  else if(r.imdb){ key = `imdb:${r.imdb}`; quelle = 'import'; }
+  else key = `import:${typ}:${norm(r.titel)}`;
+  const e = {key, quelle, id, imdb:r.imdb||'', typ, titel:r.titel, importTitel:r.importTitel||'', jahr: r.jahr?String(r.jahr):'', status: r.merken ? 'merken' : 'gesehen',
+    datum: r.merken ? '' : (r.datum||''), dienst: r.merken ? '' : (r.dienst||dienstStd||''), sterne: r.sterne||0, verlauf: r.verlauf||[], hinzu:new Date().toISOString(), geaendert:Date.now()};
+  if(r.folgen) e.folgen = r.folgen;
+  return e;
+}
+function einfuegen(roh, dienstStd){
+  let neu = 0, zusammen = 0;
+  const nachTitel = new Map(); for(const e of liste) nachTitel.set(e.typ+':'+norm(e.titel), e);
+  for(const r of roh){
+    if(!r.titel) continue;
+    const e = rohZuEintrag(r, dienstStd);
+    const alt = index.get(e.key) || (e.imdb && index.get('imdb:'+e.imdb)) || nachTitel.get(e.typ+':'+norm(e.titel));
+    if(alt){ verschmelze(alt, e); zusammen++; }
+    else { liste.push(e); index.set(e.key, e); if(e.imdb) index.set('imdb:'+e.imdb, e); nachTitel.set(e.typ+':'+norm(e.titel), e); delete geloescht[e.key]; neu++; }
+  }
+  neuIndex(); sichern();
+  return {neu, zusammen};
+}
+
+function netflixRoh(zeilen){
+  const kopf = zeilen[0].map(s=>s.toLowerCase().trim());
+  const ti = spalte(kopf, ['title','titel']), di = spalte(kopf, ['date','datum']);
+  const gruppen = new Map();
+  for(const z of zeilen.slice(1)){
+    const titel = (z[ti]||'').trim(), datum = datumAus(z[di]);
+    if(!titel) continue;
+    const p = netflixTeile(titel);
+    const gk = (p.serie?'serie':'film')+':'+norm(p.name);
+    if(!gruppen.has(gk)) gruppen.set(gk, {typ:p.serie?'serie':'film', titel:p.name, verlauf:[], datum:''});
+    const g = gruppen.get(gk);
+    g.verlauf.push({d:datum, n:p.serie?(p.folge||''):'', s:p.serie?(p.staffel||null):null});
+    if(datum > g.datum) g.datum = datum;
+  }
+  return [...gruppen.values()];
+}
+
+function csvAllgemeinRoh(zeilen){
+  const kopf = zeilen[0].map(s=>s.toLowerCase().trim().replace(/\s+/g,'_'));
+  const ti = spalte(kopf, ['title','titel','name','show','movie','film']);
+  const di = spalte(kopf, ['watcheddate','watched_date','watched_at','last_watched_at','last_watched','date','datum','gesehen_am']);
+  const ty = spalte(kopf, ['type','typ','kind','media_type']);
+  const ji = spalte(kopf, ['year','jahr']);
+  const im = spalte(kopf, ['imdb','imdb_id','imdbid']);
+  const tm = spalte(kopf, ['tmdb','tmdb_id','tmdbid']);
+  const ra = spalte(kopf, ['rating','bewertung','user_rating']);
+  const wl = spalte(kopf, ['watchlist','status','list']);
+  if(ti < 0) throw new Error('Keine Spalte für den Titel gefunden.');
+  return zeilen.slice(1).map(z=>{
+    const typRoh = (z[ty]||'').toLowerCase();
+    const status = (z[wl]||'').toLowerCase();
+    const r = Number(String(z[ra]||'').replace(',','.'));
+    return { titel:(z[ti]||'').trim(), datum:datumAus(z[di]), typ: /tv|show|serie|series|anime/.test(typRoh)?'serie':'film', jahr:(z[ji]||'').match(/\d{4}/)?.[0]||'',
+      imdb: (z[im]||'').match(/tt\d+/)?.[0]||'', tmdb: (z[tm]||'').match(/^\d+$/)?.[0]||'', sterne: r ? Math.max(1, Math.min(5, Math.round(r>5 ? r/2 : r))) : 0,
+      merken: /plan|watchlist|merk|want/.test(status) };
+  });
+}
+
+function traktRoh(daten){
+  const out = new Map();
+  const add = (art, obj, extra) => {
+    if(!obj) return;
+    const ids = obj.ids||{};
+    const k = (art==='serie'?'s':'m') + (ids.tmdb || ids.imdb || ids.trakt || norm(obj.title));
+    if(!out.has(k)) out.set(k, {typ:art, titel:obj.title, jahr:obj.year, tmdb:ids.tmdb, imdb:ids.imdb, verlauf:[], folgen:{}, datum:'', sterne:0, merken:false});
+    const r = out.get(k);
+    if(extra.datum){ if(extra.datum > r.datum) r.datum = extra.datum; if(art==='film') r.verlauf.push({d:extra.datum}); }
+    if(extra.folge) r.folgen[extra.folge] = extra.datum || r.folgen[extra.folge] || '';
+    if(extra.sterne) r.sterne = extra.sterne;
+    if(extra.merken && !r.datum) r.merken = true;
+    if(r.datum) r.merken = false;
+  };
+  for(const x of daten){
+    if(!x || typeof x!=='object') continue;
+    const datum = datumAus(x.watched_at || x.last_watched_at || x.rated_at || '');
+    const sterne = x.rating ? Math.max(1, Math.round(x.rating/2)) : 0;
+    const merken = !!x.listed_at && !x.watched_at && !x.last_watched_at;
+    if(x.movie) add('film', x.movie, {datum, sterne, merken});
+    else if(x.show){
+      if(x.episode) add('serie', x.show, {datum, folge:`${x.episode.season}x${x.episode.number}`});
+      else if(Array.isArray(x.seasons)){
+        for(const s of x.seasons) for(const ep of (s.episodes||[])) add('serie', x.show, {datum: datumAus(ep.last_watched_at||x.last_watched_at||''), folge:`${s.number}x${ep.number}`});
+        if(!x.seasons.length) add('serie', x.show, {datum, sterne, merken});
+      }
+      else add('serie', x.show, {datum, sterne, merken});
+    }
+  }
+  return [...out.values()].map(r=>{ if(!Object.keys(r.folgen).length) delete r.folgen; return r; });
+}
+
+async function importiereDatei(f){
+  const text = await f.text();
+  const name = f.name.toLowerCase();
+  if(name.endsWith('.json') || /^\s*[\[{]/.test(text)){
+    const d = JSON.parse(text);
+    if(d && d.app==='filmarchiv' || (Array.isArray(d) && d[0]?.key && d[0]?.titel)){
+      const neu = Array.isArray(d) ? d : (d.eintraege||[]);
+      let n = 0, z = 0;
+      for(const e of neu){ if(!e?.key || !e.titel) continue; const alt = index.get(e.key); if(alt){ verschmelze(alt, e); z++; } else { liste.push({...e, geaendert:e.geaendert||Date.now()}); delete geloescht[e.key]; n++; } }
+      neuIndex(); sichern();
+      return `Filmarchiv-Sicherung: ${n} neu, ${z} zusammengeführt`;
+    }
+    const arr = Array.isArray(d) ? d : (d.history || d.watched || d.items || []);
+    if(arr.length && (arr[0].movie || arr[0].show)){
+      const r = einfuegen(traktRoh(arr));
+      return `Trakt: ${r.neu} neu, ${r.zusammen} zusammengeführt`;
+    }
+    throw new Error('Unbekanntes JSON-Format');
+  }
+  const zeilen = csvLesen(text);
+  if(zeilen.length < 2) throw new Error('Die Datei ist leer.');
+  const kopf = zeilen[0].map(s=>s.toLowerCase().trim());
+  const istNetflix = (kopf.includes('title') || kopf.includes('titel')) && (kopf.includes('date') || kopf.includes('datum')) && kopf.length <= 3;
+  if(istNetflix){
+    const roh = netflixRoh(zeilen);
+    const r = einfuegen(roh, 'Netflix');
+    return `Netflix: ${zeilen.length-1} Zeilen → ${roh.length} Titel (${r.neu} neu, ${r.zusammen} zusammengeführt)`;
+  }
+  const r = einfuegen(csvAllgemeinRoh(zeilen));
+  return `CSV: ${r.neu} neu, ${r.zusammen} zusammengeführt`;
+}
+
+$('import').addEventListener('click', ()=>$('import-datei').click());
+$('import-datei').addEventListener('change', async ev=>{
+  const dateien = [...ev.target.files]; ev.target.value=''; if(!dateien.length) return;
+  const st = $('import-status'); st.style.color=''; st.textContent = 'Wird eingelesen …';
+  const meldungen = [];
+  for(const f of dateien){
+    try { meldungen.push('✓ ' + f.name + ': ' + await importiereDatei(f)); }
+    catch(e){ meldungen.push('✗ ' + f.name + ': ' + (e.message || 'konnte nicht gelesen werden')); }
+  }
+  const umgebaut = aufraeumen();
+  st.innerHTML = meldungen.map(esc).join('<br>') + (umgebaut ? `<br>Serienfolgen gebündelt.` : '') + (tmdbKey ? '<br>Plakate und Infos werden jetzt im Hintergrund ergänzt …' : '');
+  toast('Import fertig');
+  if(tmdbKey) vervollstaendigen();
+});
+
+/* ===================== VERVOLLSTÄNDIGEN ===================== */
+let vervollstLaeuft = false, vervollstStopp = false, vervollstStand = {fertig:0, gesamt:0};
+const brauchtZuordnung = e => e.quelle!=='tmdb' && !e.nichtGefunden && (e.status==='gesehen' || e.status==='merken' || e.status==='liste');
+const brauchtInfos = e => e.quelle==='tmdb' && !e.angereichert;
+function offenZahl(){ let n = 0; for(const e of liste) if(brauchtZuordnung(e) || brauchtInfos(e)) n++; return n; }
+
+function besterTreffer(ergebnisse, titel, jahr){
+  if(!ergebnisse?.length) return null;
+  const n = norm(titel);
+  const punkte = r => {
+    const namen = [r.title, r.name, r.original_title, r.original_name].filter(Boolean).map(norm);
+    let p = 0;
+    if(namen.includes(n)) p += 100; else if(namen.some(x=>x.startsWith(n)||n.startsWith(x))) p += 40;
+    const j = jahr && (r.release_date||r.first_air_date||'').slice(0,4);
+    if(j && j===String(jahr)) p += 30;
+    p += Math.min(30, Math.log10((r.vote_count||0)+1)*10);
+    return p;
+  };
+  return ergebnisse.slice().sort((a,b)=>punkte(b)-punkte(a))[0];
+}
+
+async function zuordnen(e){
+  let r = null, typ = e.typ==='serie' ? 'tv' : 'movie';
+  if(e.imdb){
+    const f = await tmdb('/find/'+e.imdb, {external_source:'imdb_id'});
+    if(f.movie_results?.length){ r = f.movie_results[0]; typ = 'movie'; }
+    else if(f.tv_results?.length){ r = f.tv_results[0]; typ = 'tv'; }
+  }
+  const titel = e.titel;
+  if(!r){
+    const p = {query:titel, include_adult:'false'}; if(e.jahr) p[typ==='tv'?'first_air_date_year':'year'] = e.jahr;
+    let d = await tmdb(`/search/${typ}`, p);
+    r = besterTreffer(d.results, titel, e.jahr);
+    if(!r || norm(r.title||r.name)!==norm(titel)){
+      const anders = typ==='tv' ? 'movie' : 'tv';
+      const d2 = await tmdb(`/search/${anders}`, {query:titel, include_adult:'false'});
+      const r2 = besterTreffer(d2.results, titel, e.jahr);
+      const exakt = x => x && [x.title,x.name,x.original_title,x.original_name].filter(Boolean).map(norm).includes(norm(titel));
+      if(r2 && (exakt(r2) && !exakt(r) || !r)){ r = r2; typ = anders; }
+    }
+  }
+  if(!r){ e.nichtGefunden = true; e.geaendert = Date.now(); return; }
+  const neuKey = `tmdb:${typ}:${r.id}`;
+  const alterKey = e.key;
+  const daten = {quelle:'tmdb', id:r.id, typ: typ==='tv'?'serie':'film', poster: r.poster_path ? IMG+'w342'+r.poster_path : (e.poster||''), jahr: jahr(r.release_date||r.first_air_date) || e.jahr};
+  const vorhanden = index.get(neuKey);
+  if(vorhanden && vorhanden !== e){
+    verschmelze(vorhanden, {...e, ...daten});
+    liste = liste.filter(x=>x!==e);
+    entferneSchluessel(alterKey);
+  } else {
+    if(!e.importTitel && alterKey.startsWith('import:')) e.importTitel = e.titel;
+    Object.assign(e, daten, {key:neuKey, titel: r.title || r.name || e.titel, geaendert:Date.now()});
+    if(alterKey !== neuKey) entferneSchluessel(alterKey);
+    delete geloescht[neuKey];
+  }
+  neuIndex();
+}
+
+const staffelCache = new Map();
+async function staffelLaden(id, s){
+  const k = id+':'+s;
+  if(!staffelCache.has(k)) staffelCache.set(k, tmdb(`/tv/${id}/season/${s}`).then(d=>(d.episodes||[]).map(ep=>({e:ep.episode_number, name:ep.name||'', datum:ep.air_date||'', laufzeit:ep.runtime||null}))).catch(err=>{ staffelCache.delete(k); throw err; }));
+  return staffelCache.get(k);
+}
+
+// Netflix-Folgennamen den echten Staffeln/Folgen zuordnen
+async function folgenZuordnen(e){
+  const offen = (e.verlauf||[]).filter(v=>!v.k && (v.n || v.s));
+  if(!offen.length || !e.staffelInfo?.length) return;
+  const staffeln = new Set(offen.map(v=>v.s).filter(Boolean));
+  const ohneStaffel = offen.some(v=>!v.s);
+  const zuLaden = ohneStaffel ? e.staffelInfo.map(s=>s.n).slice(0, 12) : [...staffeln].filter(s=>e.staffelInfo.some(x=>x.n===s));
+  const namen = new Map(); // "s|name" und "name" → "SxE"
+  for(const s of zuLaden){
+    try {
+      const folgen = await staffelLaden(e.id, s);
+      for(const f of folgen){ const k = `${s}x${f.e}`; const n = norm(f.name); if(n){ namen.set(s+'|'+n, k); if(!namen.has(n)) namen.set(n, k); } namen.set(s+'|folge '+f.e, k); namen.set(s+'|episode '+f.e, k); namen.set(s+'|kapitel '+f.e, k); }
+    } catch(err){}
+  }
+  e.folgen = e.folgen || {};
+  for(const v of offen){
+    const n = norm(v.n);
+    let k = (v.s && namen.get(v.s+'|'+n)) || namen.get(n);
+    if(!k && v.s && /^\d+$/.test(n)) k = `${v.s}x${n}`;
+    if(!k && v.s){ const m = n.match(/(?:folge|episode|kapitel|chapter)\s*(\d+)/); if(m) k = `${v.s}x${m[1]}`; }
+    if(k){ v.k = k; if(!e.folgen[k] || (v.d && v.d < e.folgen[k])) e.folgen[k] = v.d || e.folgen[k] || ''; }
+  }
+}
+
+async function anreichern(e){
+  const typ = e.typ==='serie' ? 'tv' : 'movie';
+  const d = await tmdb(`/${typ}/${e.id}`, {append_to_response:'external_ids'});
+  e.laufzeit = (typ==='movie' ? d.runtime : ((d.episode_run_time||[])[0] || d.last_episode_to_air?.runtime)) || e.laufzeit || null;
+  e.genres = (d.genres||[]).map(g=>g.name);
+  e.imdb = e.imdb || d.external_ids?.imdb_id || d.imdb_id || '';
+  if(d.poster_path) e.poster = IMG+'w342'+d.poster_path;
+  if(typ==='tv'){
+    e.staffelInfo = (d.seasons||[]).filter(s=>s.season_number>0 && s.episode_count>0).map(s=>({n:s.season_number, anzahl:s.episode_count, name:s.name}));
+    e.letzteFolge = folgeKurz(d.last_episode_to_air); e.naechsteFolge = folgeKurz(d.next_episode_to_air); e.serienStatus = d.status;
+    await folgenZuordnen(e);
+  }
+  if(e.imdb){ try { const c = await cine(`/meta/${typ==='tv'?'series':'movie'}/${e.imdb}.json`); const w = Number(c.meta?.imdbRating); if(w) e.imdbWert = w; } catch(err){} }
+  e.angereichert = Date.now(); e.geaendert = Date.now();
+  if(index.has('imdb:'+e.imdb) && index.get('imdb:'+e.imdb)!==e){ // doppelt über IMDb
+    const anderer = index.get('imdb:'+e.imdb); verschmelze(e, anderer); liste = liste.filter(x=>x!==anderer); entferneSchluessel(anderer.key);
+  }
+  neuIndex();
+}
+
+function vervollstAnzeigen(){
+  const st = $('vervollst-status'); if(!st) return;
+  const offen = offenZahl();
+  if(!tmdbKey){ st.textContent = 'Braucht den TMDB-Schlüssel (oben).'; return; }
+  if(vervollstLaeuft){ const p = vervollstStand.gesamt ? Math.round(vervollstStand.fertig/vervollstStand.gesamt*100) : 0; st.innerHTML = `<div class="balken"><i style="width:${p}%"></i></div>Läuft: ${vervollstStand.fertig} von ${vervollstStand.gesamt} Titeln (${p} %) – du kannst die App weiter benutzen.`; $('vervollst-start').textContent = '⏸ Anhalten'; return; }
+  $('vervollst-start').textContent = '🔧 Jetzt vervollständigen';
+  const nicht = liste.filter(e=>e.nichtGefunden).length;
+  st.textContent = offen ? `${offen} Titel ohne vollständige Infos.` : `✓ Alle Titel sind vollständig.${nicht ? ` (${nicht} wurden in der Datenbank nicht gefunden.)` : ''}`;
+  const b = $('gesehen-banner'); if(b) b.innerHTML = '';
+}
+async function vervollstaendigen(){
+  if(vervollstLaeuft || !tmdbKey) return;
+  vervollstLaeuft = true; vervollstStopp = false;
+  const aufgaben = liste.filter(e=>brauchtZuordnung(e) || brauchtInfos(e)).sort((a,b)=>(b.datum||'').localeCompare(a.datum||''));
+  vervollstStand = {fertig:0, gesamt:aufgaben.length};
+  vervollstAnzeigen();
+  let i = 0, seitSpeichern = 0;
+  const arbeiter = async () => {
+    while(i < aufgaben.length && !vervollstStopp){
+      const e = aufgaben[i++];
+      if(!liste.includes(e)){ vervollstStand.fertig++; continue; }
+      try {
+        if(brauchtZuordnung(e)) await zuordnen(e);
+        if(liste.includes(e) && brauchtInfos(e)) await anreichern(e);
+      } catch(err){ if(String(err.message).includes('401')){ vervollstStopp = true; toast('TMDB-Schlüssel ungültig'); } }
+      vervollstStand.fertig++;
+      if(++seitSpeichern >= 25){ seitSpeichern = 0; sichern(true); vervollstAnzeigen(); }
+    }
+  };
+  await Promise.all([arbeiter(), arbeiter(), arbeiter(), arbeiter()]);
+  vervollstLaeuft = false; sichern(); vervollstAnzeigen();
+  if(!vervollstStopp && vervollstStand.gesamt) toast(`✓ ${vervollstStand.gesamt} Titel vervollständigt`);
+  if(aktuelleSeite==='gesehen') zeigeGesehen();
+  if(aktuelleSeite==='suche' && !$('q').value.trim()) zeigeSuche();
+}
+$('vervollst-start').addEventListener('click', ()=>{ if(vervollstLaeuft){ vervollstStopp = true; } else vervollstaendigen(); });
+setInterval(()=>{ if(vervollstLaeuft && aktuelleSeite==='einst') vervollstAnzeigen(); }, 1500);
+
+/* Einträge ohne Datenbank-Bezug beim Öffnen auflösen */
+async function aufloesen(t){
+  const e = finde(t);
+  if(tmdbKey && e && e.quelle!=='tmdb'){
+    try { await zuordnen(e); if(e.quelle==='tmdb'){ delete e.nichtGefunden; await anreichern(e).catch(()=>{}); sichern(); return {...e}; } } catch(err){}
+  }
+  const q = e || t;
+  if(q.imdb) return {...q, quelle:'cine', id:q.imdb};
+  const r = await suchen(q.titel); const treffer = r.titel.find(x=>x.typ===q.typ) || r.titel[0];
+  if(!treffer) throw new Error('nicht gefunden');
+  return {...treffer, key:q.key};
+}
+
+/* ===================== SERIENFORTSCHRITT ===================== */
+function ausgestrahlt(info, letzte){
+  return (info||[]).map(st => {
+    let aus = st.anzahl;
+    if(letzte){ if(st.n > letzte.s) aus = 0; else if(st.n === letzte.s) aus = Math.min(st.anzahl, letzte.e); }
+    return {n:st.n, anzahl:st.anzahl, aus, name:st.name};
+  });
+}
+const teilKey = k => k.split('x').map(Number);
+function naechsteUngesehen(e, d){
+  const info = d?.staffelInfo || e?.staffelInfo; if(!info?.length) return null;
+  const letzte = d && d.letzteFolge !== undefined ? d.letzteFolge : e?.letzteFolge;
+  const g = e?.folgen || {};
+  let maxS = 0, maxE = 0;
+  for(const k of Object.keys(g)){ const [s, ep] = teilKey(k); if(s > maxS || (s === maxS && ep > maxE)){ maxS = s; maxE = ep; } }
+  for(const st of ausgestrahlt(info, letzte)){
+    for(let ep = 1; ep <= st.aus; ep++){
+      if(st.n < maxS || (st.n === maxS && ep <= maxE)) continue;
+      if(!g[`${st.n}x${ep}`]) return {s:st.n, e:ep};
+    }
+  }
+  // nichts Neueres offen → älteste ausgelassene Folge vorschlagen
+  for(const st of ausgestrahlt(info, letzte)) for(let ep = 1; ep <= st.aus; ep++) if(!g[`${st.n}x${ep}`]) return {s:st.n, e:ep, luecke:true};
+  return null;
+}
+function fortschrittZahlen(e, d){
+  const info = ausgestrahlt(d?.staffelInfo || e?.staffelInfo, d && d.letzteFolge !== undefined ? d.letzteFolge : e?.letzteFolge);
+  const gesamt = info.reduce((a,s)=>a+s.aus, 0);
+  const g = e?.folgen || {};
+  const gesehen = Object.keys(g).filter(k=>{ const [s,ep] = teilKey(k); const st = info.find(x=>x.n===s); return st && ep <= st.aus; }).length;
+  return {info, gesamt, gesehen, pct: gesamt ? Math.round(gesehen/gesamt*100) : 0};
+}
+function fortschrittHTML(d){
+  const e = finde(d);
+  const {info, gesamt, gesehen, pct} = fortschrittZahlen(e, d);
+  const g = e?.folgen || {};
+  const nx = naechsteUngesehen(e, d);
+  let html = `<h4>📺 Fortschritt</h4><div class="balken"><i style="width:${pct}%"></i></div><div class="quelle" style="margin-top:4px">${gesehen} von ${gesamt} Folgen gesehen (${pct} %)</div>`;
+  if(nx) html += `<div class="naechste"><div><small>${nx.luecke ? 'Ausgelassene Folge' : 'Nächste Folge'}</small><b>Staffel ${nx.s} · Folge ${nx.e}</b><span class="nxname" data-nx="${nx.s}x${nx.e}"></span></div><button class="btn klein" type="button" data-folge-an="${nx.s}x${nx.e}">✓ Gesehen</button></div>`;
+  else if(gesamt && gesehen >= gesamt) html += `<div class="naechste fertig"><b>✓ Alle ausgestrahlten Folgen gesehen</b></div>`;
+  if(d.naechsteFolge?.datum) html += `<div class="quelle">📅 Neue Folge (S${d.naechsteFolge.s} · F${d.naechsteFolge.e}) am ${esc(datumDE(d.naechsteFolge.datum))}</div>`;
+  const ohne = (e?.verlauf||[]).filter(v=>!v.k).length;
+  if(ohne) html += `<div class="quelle">${ohne} importierte Folgen ohne Zuordnung (aus dem Netflix-Verlauf).</div>`;
+  html += info.map(st => {
+    const z = Object.keys(g).filter(k=>teilKey(k)[0]===st.n).length;
+    return `<details class="staffel" data-staffel="${st.n}"><summary><span>${esc(st.name || 'Staffel '+st.n)}</span><span class="sz ${st.aus && z>=st.aus ? 'voll' : ''}">${z}/${st.aus}${st.aus<st.anzahl ? ` <small>(+${st.anzahl-st.aus} bald)</small>` : ''}</span></summary><div class="folgen" data-folgen="${st.n}">Lädt …</div></details>`;
+  }).join('');
+  return html;
+}
+async function staffelZeichnen(d, s){
+  const box = document.querySelector(`[data-folgen="${s}"]`); if(!box) return;
+  try {
+    const folgen = await staffelLaden(d.id, s);
+    const e = finde(d), g = e?.folgen || {}, h = heute();
+    box.innerHTML = `<div class="knoepfe" style="margin:6px 0"><button class="btn zwei klein" type="button" data-staffel-alle="${s}">✓ Ganze Staffel</button><button class="btn zwei klein" type="button" data-staffel-leer="${s}">Zurücksetzen</button></div>` +
+      folgen.map(f => {
+        const k = `${s}x${f.e}`, an = !!(k in g), zukunft = f.datum && f.datum > h;
+        return `<div class="folge ${an?'an':''} ${zukunft?'zukunft':''}"><button class="haken" type="button" data-folge="${k}" ${zukunft?'disabled':''} aria-label="Folge ${f.e} gesehen">${an?'✓':''}</button><div class="fm"><b>${f.e}. ${esc(f.name||'Folge '+f.e)}</b><small>${f.datum ? (zukunft ? 'Kommt am ' : 'Ausgestrahlt ') + esc(datumDE(f.datum)) : ''}${an && g[k] ? ' · gesehen ' + esc(datumDE(g[k])) : ''}${f.laufzeit ? ' · ' + f.laufzeit + ' Min.' : ''}</small></div>${zukunft ? '' : `<button class="bis" type="button" data-bis="${k}">bis hier</button>`}</div>`;
+      }).join('');
+  } catch(err){ box.textContent = 'Folgen konnten nicht geladen werden.'; }
+}
+async function naechsteNameZeigen(d){
+  const el = document.querySelector('.nxname'); if(!el) return;
+  const [s, ep] = teilKey(el.dataset.nx);
+  try { const f = (await staffelLaden(d.id, s)).find(x=>x.e===ep); if(f?.name) el.textContent = f.name; } catch(err){}
+}
+function dienstVorschlag(d){
+  const fl = d?.anbieter?.flatrate || [];
+  const best = fl.find(p=>aboIds().includes(String(p.provider_id))) || fl[0];
+  if(!best) return '';
+  const p = best.provider_name.toLowerCase();
+  return DIENSTE.find(x => p.includes(x.toLowerCase().split(' ')[0].replace('+',''))) || '';
+}
+function folgenSetzen(d, keys, an){
+  let e = finde(d);
+  if(!e) e = speichereEintrag(d, {status:'gesehen', datum:heute(), dienst:dienstVorschlag(d)});
+  const folgen = {...(e.folgen||{})};
+  for(const k of keys){ if(an) folgen[k] = folgen[k] || heute(); else delete folgen[k]; }
+  const felder = {folgen};
+  if(an){ felder.status = 'gesehen'; felder.datum = heute(); }
+  speichereEintrag(d, felder);
+  fortschrittNeu(d);
+}
+function fortschrittNeu(d){
+  const box = $('fortschritt'); if(!box) return;
+  const offen = [...box.querySelectorAll('details[open]')].map(x=>x.dataset.staffel);
+  box.innerHTML = fortschrittHTML(d);
+  for(const s of offen){ const det = box.querySelector(`details[data-staffel="${s}"]`); if(det){ det.open = true; staffelZeichnen(d, +s); } }
+  naechsteNameZeigen(d);
+  const st = $('detail-status'); if(st) st.outerHTML = statusHTML(d);
+}
+document.addEventListener('toggle', ev => { const det = ev.target; if(det.matches?.('details.staffel') && det.open && aktuell?.id) staffelZeichnen(aktuell, +det.dataset.staffel); }, true);
+document.addEventListener('click', async ev => {
+  const b = ev.target.closest('[data-folge],[data-folge-an],[data-bis],[data-staffel-alle],[data-staffel-leer]');
+  if(!b || !aktuell?.id) return;
+  const d = aktuell;
+  if(b.dataset.folgeAn){ folgenSetzen(d, [b.dataset.folgeAn], true); toast('✓ Folge gesehen'); return; }
+  if(b.dataset.folge){ const e = finde(d); const an = !(e?.folgen && b.dataset.folge in e.folgen); folgenSetzen(d, [b.dataset.folge], an); return; }
+  const h = heute();
+  if(b.dataset.staffelAlle || b.dataset.staffelLeer){
+    const s = +(b.dataset.staffelAlle || b.dataset.staffelLeer);
+    const folgen = await staffelLaden(d.id, s);
+    const keys = folgen.filter(f=>!f.datum || f.datum <= h).map(f=>`${s}x${f.e}`);
+    folgenSetzen(d, keys, !!b.dataset.staffelAlle); return;
+  }
+  if(b.dataset.bis){
+    const [bs, be] = teilKey(b.dataset.bis); const keys = [];
+    for(const st of (d.staffelInfo||[])){
+      if(st.n > bs) break;
+      const folgen = await staffelLaden(d.id, st.n);
+      for(const f of folgen){ if(st.n < bs || f.e <= be){ if(!f.datum || f.datum <= h) keys.push(`${st.n}x${f.e}`); } }
+    }
+    folgenSetzen(d, keys, true); toast(`✓ ${keys.length} Folgen als gesehen markiert`);
+  }
+});
+function weiterschauenHTML(){
+  const w = liste.filter(e=>e.typ==='serie' && e.status==='gesehen' && e.staffelInfo && e.folgen && Object.keys(e.folgen).length && naechsteUngesehen(e))
+    .sort((a,b)=>(b.datum||'').localeCompare(a.datum||'')).slice(0, 12);
+  if(!w.length) return '';
+  return `<h2>▶ Weiterschauen</h2><div class="raster">${w.map(e=>{ const nx = naechsteUngesehen(e); return kachel(e).replace('</button>', `<div class="j" style="color:var(--akzent);font-weight:700">S${nx.s} · F${nx.e}</div></button>`); }).join('')}</div>`;
+}
+
+/* ===================== EIGENE LISTEN ===================== */
+let aktListe = 'merken';
+const listenName = id => id==='merken' ? 'Merkliste' : (einstellungen.listen.find(l=>l.id===id)?.name || '');
+function zeigeListen(){
+  const L = einstellungen.listen;
+  if(aktListe !== 'merken' && !L.some(l=>l.id===aktListe)) aktListe = 'merken';
+  const zahl = id => id==='merken' ? liste.filter(e=>e.status==='merken').length : liste.filter(e=>e.listen?.includes(id)).length;
+  $('listen-wahl').innerHTML = [`<button class="chip ${aktListe==='merken'?'an':''}" data-liste="merken" type="button">🔖 Merkliste<small>${zahl('merken')}</small></button>`,
+    ...L.map(l=>`<button class="chip ${aktListe===l.id?'an':''}" data-liste="${esc(l.id)}" type="button">📋 ${esc(l.name)}<small>${zahl(l.id)}</small></button>`),
+    `<button class="chip" data-liste-neu type="button">＋ Neue Liste</button>`].join('');
+  $('listen-kopf').innerHTML = aktListe==='merken' ? `<h2 style="margin-top:6px">Will ich noch sehen</h2>`
+    : `<div class="lkopf"><h2 style="margin:6px 0">${esc(listenName(aktListe))}</h2><button class="btn zwei klein" type="button" data-liste-umbenennen>✎ Umbenennen</button><button class="btn zwei klein" type="button" data-liste-loeschen>🗑 Löschen</button></div>`;
+  const eintraege = (aktListe==='merken' ? liste.filter(e=>e.status==='merken') : liste.filter(e=>e.listen?.includes(aktListe))).sort((a,b)=>(b.hinzu||'').localeCompare(a.hinzu||''));
+  $('liste-merken').innerHTML = eintraege.length ? eintraege.map(e=>zeile(e)).join('')
+    : `<div class="leer">${aktListe==='merken' ? 'Deine Merkliste ist leer.<br>Tippe bei einem Titel auf „Merken“.' : 'Diese Liste ist leer.<br>Öffne einen Titel und tippe auf „📋 Listen“.'}</div>`;
+}
+function eingabeZeigen(ziel, wert, fertig){
+  ziel.innerHTML = `<div class="feld" style="display:flex;gap:8px;margin:8px 0"><input type="text" maxlength="40" value="${esc(wert)}" placeholder="Name der Liste"><button class="btn klein" type="button">OK</button></div>`;
+  const inp = ziel.querySelector('input'); inp.focus();
+  const ok = () => { const v = inp.value.trim(); if(v) fertig(v); else zeigeListen(); };
+  ziel.querySelector('button').onclick = ok; inp.onkeydown = ev => { if(ev.key==='Enter') ok(); if(ev.key==='Escape') zeigeListen(); };
+}
+function neueListe(name){ const id = 'l' + Date.now().toString(36); einstellungen.listen.push({id, name}); einstSichern(); return id; }
+document.addEventListener('click', ev => {
+  const b = ev.target.closest('[data-liste],[data-liste-neu],[data-liste-umbenennen],[data-liste-loeschen]');
+  if(!b || !b.closest('#s-merken')) return;
+  if(b.dataset.liste){ aktListe = b.dataset.liste; zeigeListen(); return; }
+  if('listeNeu' in b.dataset){ eingabeZeigen($('listen-kopf'), '', name => { aktListe = neueListe(name); zeigeListen(); }); return; }
+  if('listeUmbenennen' in b.dataset){ eingabeZeigen($('listen-kopf'), listenName(aktListe), name => { const l = einstellungen.listen.find(x=>x.id===aktListe); if(l){ l.name = name; einstSichern(); } zeigeListen(); }); return; }
+  if('listeLoeschen' in b.dataset){
+    if(!b.dataset.sicher){ b.dataset.sicher = '1'; b.textContent = 'Wirklich löschen?'; return; }
+    const id = aktListe;
+    for(const e of liste.filter(x=>x.listen?.includes(id))){ const l = e.listen.filter(x=>x!==id); if(!l.length && e.status==='liste') entferne(e); else speichereEintrag(e, {listen:l}); }
+    einstellungen.listen = einstellungen.listen.filter(l=>l.id!==id); einstSichern(); aktListe = 'merken'; zeigeListen(); toast('Liste gelöscht');
+  }
+});
+let ldlgTitel = null;
+function listenDialog(d){ ldlgTitel = d; $('ldlg-titel').textContent = 'Listen: ' + d.titel; ldlgZeichnen(); $('listen-schleier').classList.add('an'); }
+function ldlgZeichnen(){
+  const d = ldlgTitel, e = finde(d);
+  const zeilen = [{id:'merken', name:'🔖 Merkliste', an: e?.status==='merken', aus: e?.status==='gesehen'}, ...einstellungen.listen.map(l=>({id:l.id, name:'📋 '+l.name, an: !!e?.listen?.includes(l.id)}))];
+  $('ldlg-listen').innerHTML = zeilen.map(z=>`<label class="lzeile ${z.aus?'aus':''}"><input type="checkbox" data-ldlg="${esc(z.id)}" ${z.an?'checked':''} ${z.aus?'disabled':''}><span>${esc(z.name)}${z.aus?' <small>(schon gesehen)</small>':''}</span></label>`).join('');
+}
+function listeUmschalten(d, id){
+  const e = finde(d);
+  if(id==='merken'){
+    if(e?.status==='merken'){ if(e.listen?.length) speichereEintrag(d, {status:'liste'}); else entferne(d); }
+    else if(e?.status!=='gesehen') speichereEintrag(d, {status:'merken'});
+  } else {
+    if(e?.listen?.includes(id)){ const l = e.listen.filter(x=>x!==id); if(!l.length && e.status==='liste') entferne(d); else speichereEintrag(d, {listen:l}); }
+    else speichereEintrag(d, {listen:[...(e?.listen||[]), id], status: e?.status || 'liste'});
+  }
+}
+$('ldlg-listen').addEventListener('change', ev => { const c = ev.target.closest('[data-ldlg]'); if(c && ldlgTitel){ listeUmschalten(ldlgTitel, c.dataset.ldlg); ldlgZeichnen(); } });
+$('ldlg-anlegen').addEventListener('click', () => { const v = $('ldlg-neu').value.trim(); if(!v || !ldlgTitel) return; const id = neueListe(v); listeUmschalten(ldlgTitel, id); $('ldlg-neu').value=''; ldlgZeichnen(); });
+$('ldlg-neu').addEventListener('keydown', ev => { if(ev.key==='Enter') $('ldlg-anlegen').click(); });
+$('ldlg-fertig').addEventListener('click', () => { $('listen-schleier').classList.remove('an'); if(aktuell) zeichneDetail(aktuell, false); });
+$('listen-schleier').addEventListener('click', ev => { if(ev.target===$('listen-schleier')) $('ldlg-fertig').click(); });
+
+/* ===================== MEINE ABOS ===================== */
+const aboIds = () => einstellungen.abos.map(a=>String(a.id));
+let aboAuswahl = null;
+async function zeigeAbos(){
+  const ziel = $('abo-wahl');
+  if(!tmdbKey){ ziel.innerHTML = '<span class="quelle">Braucht den TMDB-Schlüssel (oben).</span>'; return; }
+  try {
+    if(!aboAuswahl){
+      const [a, b] = await Promise.all([tmdb('/watch/providers/movie', {watch_region:'DE'}), tmdb('/watch/providers/tv', {watch_region:'DE'}).catch(()=>({results:[]}))]);
+      const m = new Map(); for(const p of [...(a.results||[]), ...(b.results||[])]) if(!m.has(p.provider_id)) m.set(p.provider_id, p);
+      aboAuswahl = [...m.values()].sort((x,y)=>(x.display_priorities?.DE??x.display_priority??99)-(y.display_priorities?.DE??y.display_priority??99)).slice(0, 30)
+        .map(p=>({id:p.provider_id, name:p.provider_name, logo:p.logo_path}));
+    }
+    const ids = aboIds();
+    ziel.innerHTML = aboAuswahl.map(p=>`<button class="chip abo ${ids.includes(String(p.id))?'an':''}" data-abo="${p.id}" type="button">${p.logo?`<img src="${IMG}w92${esc(p.logo)}" alt="" referrerpolicy="no-referrer" onerror="this.remove()">`:''}${esc(p.name)}</button>`).join('');
+  } catch(e){ ziel.innerHTML = '<span class="quelle">Konnte nicht geladen werden. Bist du online?</span>'; }
+}
+$('abo-wahl').addEventListener('click', ev => {
+  const b = ev.target.closest('[data-abo]'); if(!b) return;
+  const id = +b.dataset.abo, p = aboAuswahl.find(x=>x.id===id);
+  if(aboIds().includes(String(id))) einstellungen.abos = einstellungen.abos.filter(a=>a.id!==id);
+  else einstellungen.abos.push({id, name:p?.name||'', logo:p?.logo||''});
+  einstSichern(); b.classList.toggle('an');
+  if(einstellungen.abos.length && lade('filmarchiv-ent-dienst', null)===null) entDienst = 'abos';
+  entDienste = null; $('ent-raster')?.remove();
+});
+
+/* ===================== NEUIGKEITEN ===================== */
+let neuigkeiten = lade('filmarchiv-news', []);
+function newsSichern(){ ablegen('filmarchiv-news', neuigkeiten.slice(0, 60)); newsPunkt(); }
+function newsPunkt(){ const b = document.querySelector('nav.unten [data-seite="suche"]'); if(b) b.classList.toggle('punkt', neuigkeiten.some(n=>!n.gelesen)); }
+function neuigkeitMelden(key, text){
+  if(neuigkeiten.some(n=>n.key===key && n.text===text)) return;
+  neuigkeiten.unshift({key, text, zeit:Date.now(), gelesen:false});
+}
+async function neuigkeitenPruefen(erzwingen){
+  if(!tmdbKey) return;
+  if(!erzwingen && Date.now() - lade('filmarchiv-news-zeit', 0) < 6*3600e3) return;
+  ablegen('filmarchiv-news-zeit', Date.now());
+  const serien = liste.filter(e=>e.quelle==='tmdb' && e.typ==='serie' && e.status==='gesehen' && !['Ended','Canceled'].includes(e.serienStatus))
+    .sort((a,b)=>(b.datum||'').localeCompare(a.datum||'')).slice(0, 40);
+  const merk = liste.filter(e=>e.quelle==='tmdb' && e.status==='merken').slice(0, 40);
+  const h = heute(), abos = aboIds();
+  const aufgaben = [
+    ...serien.map(e => async () => {
+      const d = await tmdb(`/tv/${e.id}`);
+      e.staffelInfo = (d.seasons||[]).filter(s=>s.season_number>0 && s.episode_count>0).map(s=>({n:s.season_number, anzahl:s.episode_count, name:s.name}));
+      e.letzteFolge = folgeKurz(d.last_episode_to_air); e.naechsteFolge = folgeKurz(d.next_episode_to_air); e.serienStatus = d.status;
+      const lf = e.letzteFolge;
+      if(lf?.datum && lf.datum <= h && lf.datum > (e.datum||'')){
+        const hatFortschritt = e.folgen && Object.keys(e.folgen).length;
+        if(!hatFortschritt || naechsteUngesehen(e)) neuigkeitMelden(e.key, `Neue Folge: ${e.titel} – Staffel ${lf.s}, Folge ${lf.e}`);
+      }
+    }),
+    ...merk.map(e => async () => {
+      const typ = e.typ==='serie' ? 'tv' : 'movie';
+      const w = await tmdb(`/${typ}/${e.id}/watch/providers`);
+      const fl = (w.results?.DE?.flatrate || []).filter(p => !abos.length || abos.includes(String(p.provider_id))).map(p=>p.provider_name);
+      const vorher = e.anbieterJetzt || [];
+      const neu = fl.filter(x=>!vorher.includes(x));
+      e.anbieterJetzt = fl;
+      if(neu.length) neuigkeitMelden(e.key, `${abos.length ? 'Jetzt in deinem Abo' : 'Jetzt im Abo'} bei ${neu.join(', ')}: ${e.titel}`);
+    })
+  ];
+  let i = 0;
+  const arbeiter = async () => { while(i < aufgaben.length){ const a = aufgaben[i++]; try { await a(); } catch(err){} } };
+  await Promise.all([arbeiter(), arbeiter(), arbeiter()]);
+  sichern(true); newsSichern();
+  if(aktuelleSeite==='suche' && !$('q').value.trim()) zeigeSuche();
+}
+function newsHTML(){
+  const offen = neuigkeiten.filter(n=>!n.gelesen);
+  if(!offen.length) return '';
+  return `<div class="newsbox"><div class="nkopf"><b>🔔 Neuigkeiten (${offen.length})</b><button type="button" data-news-weg>Alle gelesen</button></div>${offen.slice(0, 10).map(n=>{ const e = index.get(n.key); return `<button class="nzeile" type="button" data-news="${esc(n.key)}" data-news-text="${esc(n.text)}"><div class="mini">${posterHTML(e?.poster, e?.typ)}</div><span>${esc(n.text)}</span></button>`; }).join('')}</div>`;
+}
+document.addEventListener('click', ev => {
+  const b = ev.target.closest('[data-news],[data-news-weg]'); if(!b) return;
+  if('newsWeg' in b.dataset){ neuigkeiten.forEach(n=>n.gelesen=true); newsSichern(); zeigeSuche(); return; }
+  const n = neuigkeiten.find(x=>x.key===b.dataset.news && x.text===b.dataset.newsText); if(n) n.gelesen = true; newsSichern();
+  const e = index.get(b.dataset.news); if(e) oeffne(e);
+});
+
+/* ===================== STATISTIK ===================== */
+let statJahr = '';
+function termine(e){
+  const lz = e.laufzeit || 0;
+  if(e.typ !== 'serie'){
+    const d = e.verlauf?.length ? e.verlauf.map(v=>v.d).filter(Boolean) : (e.datum ? [e.datum] : []);
+    return d.map(x=>({d:x, min:lz, art:'film'}));
+  }
+  const t = [], schon = new Set();
+  for(const [k, d] of Object.entries(e.folgen||{})){ schon.add(k); t.push({d:d||e.datum||'', min:lz, art:'folge'}); }
+  for(const v of (e.verlauf||[])){ if(v.k && schon.has(v.k)) continue; if(v.k) schon.add(v.k); t.push({d:v.d||'', min:lz, art:'folge'}); }
+  if(!t.length && e.datum) t.push({d:e.datum, min:0, art:'titel'});
+  return t;
+}
+const stunden = m => { const h = Math.round(m/60); return h >= 48 ? `${zahlFmt(h)} Std. (≈ ${zahlFmt(Math.round(h/24))} Tage)` : `${zahlFmt(h)} Std.`; };
+function balkenListe(paare, einheit){
+  if(!paare.length) return '<div class="quelle">Noch keine Daten.</div>';
+  const max = Math.max(...paare.map(p=>p[1])) || 1;
+  return `<div class="bliste">${paare.map(([n, w])=>`<div class="bz"><span class="bl">${esc(n)}</span><span class="bb"><i style="width:${Math.max(2, w/max*100)}%"></i></span><span class="bw">${zahlFmt(w)}${einheit||''}</span></div>`).join('')}</div>`;
+}
+function saeulen(paare){
+  const max = Math.max(...paare.map(p=>p[1])) || 1;
+  return `<div class="saeulen">${paare.map(([n, w])=>`<div class="sa" title="${esc(n)}: ${w}"><span class="sw">${w||''}</span><i style="height:${w ? Math.max(3, w/max*100) : 0}%"></i><small>${esc(n)}</small></div>`).join('')}</div>`;
+}
+function zeigeStatistik(){
+  const alle = liste.filter(e=>e.status==='gesehen');
+  const jahre = {}; for(const e of alle) for(const t of termine(e)){ const j = t.d.slice(0,4); if(/^\d{4}$/.test(j)) jahre[j] = 1; }
+  const jl = Object.keys(jahre).sort((a,b)=>b.localeCompare(a));
+  if(statJahr && !jahre[statJahr]) statJahr = '';
+  $('stat-jahr').innerHTML = [`<button class="chip ${statJahr?'':'an'}" data-sjahr="" type="button">Alle Jahre</button>`, ...jl.map(j=>`<button class="chip ${j===statJahr?'an':''}" data-sjahr="${j}" type="button">${j}</button>`)].join('');
+  if(!alle.length){ $('stat-inhalt').innerHTML = '<div class="leer">Noch nichts gesehen.<br>Markiere Titel als gesehen oder importiere deinen Verlauf (unter „Mehr“).</div>'; return; }
+  const imJahr = d => !statJahr || d.startsWith(statJahr);
+  let filme = 0, filmMal = 0, serien = 0, folgen = 0, minuten = 0, mitZeit = 0, ohneZeit = 0;
+  const genres = {}, dienste = {}, wochentag = [0,0,0,0,0,0,0], proTag = {}, monate = {}, topSerien = [];
+  for(const e of alle){
+    const t = termine(e).filter(x=>x.d && imJahr(x.d));
+    if(!t.length) continue;
+    if(e.typ === 'serie'){ serien++; const f = t.filter(x=>x.art==='folge').length; folgen += f; if(f) topSerien.push([e, f]); }
+    else { filme++; filmMal += t.length; }
+    if(e.laufzeit) mitZeit++; else ohneZeit++;
+    for(const x of t){
+      minuten += x.min;
+      const dt = new Date(x.d + 'T12:00:00'); if(!isNaN(dt)) wochentag[(dt.getDay()+6)%7]++;
+      proTag[x.d] = (proTag[x.d]||0) + 1;
+      const m = statJahr ? x.d.slice(5,7) : x.d.slice(0,4); monate[m] = (monate[m]||0) + 1;
+    }
+    for(const g of (e.genres||[])) genres[g] = (genres[g]||0) + 1;
+    if(e.dienst) dienste[e.dienst] = (dienste[e.dienst]||0) + 1;
+  }
+  const rekord = Object.entries(proTag).sort((a,b)=>b[1]-a[1])[0];
+  const lieblingsDienst = Object.entries(dienste).sort((a,b)=>b[1]-a[1])[0];
+  const zeitSaeulen = statJahr ? MONATE.map((n,i)=>[n.slice(0,3), monate[String(i+1).padStart(2,'0')]||0]) : Object.keys(monate).sort().map(j=>[j, monate[j]]);
+  const besteBewertet = alle.filter(e=>(e.sterne||0)>=4 && termine(e).some(x=>x.d && imJahr(x.d))).sort((a,b)=>(b.sterne-a.sterne)||(b.datum||'').localeCompare(a.datum||'')).slice(0, 12);
+  const anteil = mitZeit + ohneZeit ? Math.round(mitZeit/(mitZeit+ohneZeit)*100) : 0;
+  $('stat-inhalt').innerHTML = `
+    ${statJahr ? `<div class="rueckblick"><small>Jahresrückblick</small><b>Dein Jahr ${statJahr}</b></div>` : ''}
+    <div class="zahlen stat">
+      <div class="zahl"><b>${zahlFmt(filme)}</b><span>Filme${filmMal>filme?` (${zahlFmt(filmMal)}× geschaut)`:''}</span></div>
+      <div class="zahl"><b>${zahlFmt(serien)}</b><span>Serien</span></div>
+      <div class="zahl"><b>${zahlFmt(folgen)}</b><span>Folgen</span></div>
+      <div class="zahl breit"><b>${stunden(minuten)}</b><span>Gesamtzeit vor dem Bildschirm${anteil<100?` · Laufzeit bekannt bei ${anteil} % der Titel`:''}</span></div>
+      ${lieblingsDienst ? `<div class="zahl"><b style="font-size:16px">${esc(lieblingsDienst[0])}</b><span>Lieblingsdienst</span></div>` : ''}
+      ${rekord ? `<div class="zahl"><b>${rekord[1]}</b><span>Rekord an einem Tag (${esc(datumDE(rekord[0]))})</span></div>` : ''}
+    </div>
+    ${anteil<100 && tmdbKey ? `<div class="hinweisbox">Für genauere Zeiten und Genres: unter „Mehr“ auf <b>🔧 Jetzt vervollständigen</b> tippen.</div>` : ''}
+    <div class="abschnitt"><h4>${statJahr ? 'Pro Monat' : 'Pro Jahr'} <span class="quelle">(Filme + Folgen)</span></h4>${saeulen(zeitSaeulen)}</div>
+    <div class="abschnitt"><h4>Lieblingsgenres</h4>${balkenListe(Object.entries(genres).sort((a,b)=>b[1]-a[1]).slice(0, 8))}</div>
+    <div class="abschnitt"><h4>Streaming-Dienste</h4>${balkenListe(Object.entries(dienste).sort((a,b)=>b[1]-a[1]).slice(0, 8))}</div>
+    <div class="abschnitt"><h4>Wochentage</h4>${saeulen(['Mo','Di','Mi','Do','Fr','Sa','So'].map((n,i)=>[n, wochentag[i]]))}</div>
+    ${topSerien.length ? `<div class="abschnitt"><h4>Meistgeschaute Serien</h4><div class="raster">${topSerien.sort((a,b)=>b[1]-a[1]).slice(0, 8).map(([e, f])=>kachel(e).replace('</button>', `<div class="j" style="color:var(--akzent);font-weight:700">${f} Folgen</div></button>`)).join('')}</div></div>` : ''}
+    ${besteBewertet.length ? `<div class="abschnitt"><h4>Deine Bestbewerteten</h4><div class="raster">${besteBewertet.map(e=>kachel(e).replace('</button>', `<div class="j" style="color:var(--gelb)">${'★'.repeat(e.sterne)}</div></button>`)).join('')}</div></div>` : ''}`;
+}
+document.addEventListener('click', ev => { const b = ev.target.closest('[data-sjahr]'); if(b){ statJahr = b.dataset.sjahr; zeigeStatistik(); } });
+
+/* ===================== SYNC (GitHub Gist) ===================== */
+let ghToken = lade('filmarchiv-gh-token', '') || '', gistId = lade('filmarchiv-gist-id', '') || '';
+let syncLaeuft = false, syncNochmal = false, syncTimer = null, syncZuletzt = lade('filmarchiv-sync-zeit', 0), syncFehler = '';
+async function gh(pfad, opt={}){
+  const r = await fetch('https://api.github.com' + pfad, {...opt, headers:{Authorization:'Bearer '+ghToken, Accept:'application/vnd.github+json', ...(opt.body ? {'Content-Type':'application/json'} : {})}});
+  if(!r.ok) throw new Error('GitHub ' + r.status);
+  return r.status === 204 ? null : r.json();
+}
+function paket(){ return {app:'filmarchiv', v:2, zeit:Date.now(), eintraege:liste, geloescht, einstellungen, tmdbKey}; }
+async function gistSuchen(){
+  for(let seite = 1; seite <= 5; seite++){
+    const g = await gh(`/gists?per_page=100&page=${seite}`);
+    const f = g.find(x=>x.description==='Filmarchiv-Sync' && x.files['filmarchiv.json']);
+    if(f) return f.id;
+    if(g.length < 100) break;
+  }
+  const neu = await gh('/gists', {method:'POST', body: JSON.stringify({description:'Filmarchiv-Sync', public:false, files:{'filmarchiv.json':{content: JSON.stringify(paket())}}})});
+  return neu.id;
+}
+async function gistLesen(){
+  const g = await gh('/gists/' + gistId);
+  const f = g.files['filmarchiv.json']; if(!f) return null;
+  let text = f.content;
+  if(f.truncated){ const r = await fetch(f.raw_url); text = await r.text(); }
+  return JSON.parse(text);
+}
+function zusammenfuehren(fremd){
+  if(!fremd || fremd.app !== 'filmarchiv') return false;
+  let anders = false;
+  for(const [k, z] of Object.entries(fremd.geloescht||{})) if(!geloescht[k] || geloescht[k] < z){ geloescht[k] = z; anders = true; }
+  const lokal = new Map(liste.map(e=>[e.key, e]));
+  for(const r of (fremd.eintraege||[])){
+    if(geloescht[r.key] && geloescht[r.key] >= (r.geaendert||0)) continue;
+    const l = lokal.get(r.key);
+    if(!l){ liste.push(r); lokal.set(r.key, r); anders = true; }
+    else if((r.geaendert||0) > (l.geaendert||0)){ Object.keys(l).forEach(k=>delete l[k]); Object.assign(l, r); anders = true; }
+  }
+  const vorher = liste.length;
+  liste = liste.filter(e => !(geloescht[e.key] && geloescht[e.key] >= (e.geaendert||0)));
+  if(liste.length !== vorher) anders = true;
+  if(fremd.einstellungen && (fremd.einstellungen.geaendert||0) > (einstellungen.geaendert||0)){ einstellungen = fremd.einstellungen; ablegen('filmarchiv-einst', einstellungen); anders = true; }
+  if(!tmdbKey && fremd.tmdbKey){ tmdbKey = fremd.tmdbKey; try { localStorage.setItem(KEY_SPEICHER, tmdbKey); } catch(e){} hinweisSchluessel(); anders = true; }
+  // alte Löschmarken nach 90 Tagen vergessen
+  const grenze = Date.now() - 90*864e5; for(const k of Object.keys(geloescht)) if(geloescht[k] < grenze) delete geloescht[k];
+  return anders;
+}
+function syncAnzeigen(){
+  const p = $('sync-punkt');
+  p.className = 'syncpunkt ' + (!ghToken ? '' : syncLaeuft ? 'laeuft' : syncFehler ? 'fehler' : 'ok');
+  p.title = !ghToken ? 'Sync aus' : syncFehler ? 'Sync-Fehler: ' + syncFehler : 'Sync aktiv';
+  const b = $('sync-bereich'); if(!b) return;
+  if(!ghToken){
+    b.innerHTML = `<p>Mit Sync hast du auf Handy, Tablet und PC immer dieselbe Liste. Gespeichert wird alles <b>privat in deinem GitHub-Konto</b> (als geheimer „Gist“). Das ist kostenlos.</p>
+      <ol>
+        <li>Diesen Link öffnen (bei GitHub angemeldet sein): <a href="https://github.com/settings/tokens/new?scopes=gist&description=Filmarchiv-Sync" target="_blank" rel="noopener">github.com/settings/tokens/new</a></li>
+        <li>Bei <b>„Expiration“</b> am besten <b>„No expiration“</b> wählen. Der Haken bei <b>„gist“</b> ist schon gesetzt.</li>
+        <li>Ganz unten auf <b>„Generate token“</b> tippen und den Code (beginnt mit <code>ghp_</code>) kopieren.</li>
+        <li>Hier einfügen und auf „Verbinden“ tippen. Auf jedem weiteren Gerät denselben Code eintragen. Der TMDB-Schlüssel wird dann automatisch mit übertragen.</li>
+      </ol>
+      <div class="feld"><input id="gh-token" type="password" placeholder="ghp_…" autocomplete="off" spellcheck="false"></div>
+      <div class="knoepfe"><button class="btn" id="sync-verbinden" type="button">🔄 Verbinden</button></div><div id="sync-meldung" class="quelle"></div>`;
+    $('sync-verbinden').onclick = async () => {
+      const t = $('gh-token').value.trim(); if(!t) return;
+      ghToken = t; $('sync-meldung').textContent = 'Wird verbunden …';
+      try { await gh('/gists?per_page=1'); ablegen('filmarchiv-gh-token', t); gistId = ''; await syncJetzt(); toast('✓ Sync verbunden'); }
+      catch(e){ ghToken = ''; $('sync-meldung').textContent = '✗ Der Code funktioniert nicht. Ist der Haken bei „gist“ gesetzt?'; }
+      syncAnzeigen();
+    };
+    return;
+  }
+  const zeit = syncZuletzt ? new Date(syncZuletzt).toLocaleString('de-DE', {day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit'}) : '–';
+  b.innerHTML = `<div class="status ${syncFehler?'':'ja'}"><b>${syncFehler ? '⚠ Sync-Problem' : '✓ Sync ist eingeschaltet'}</b>${syncFehler ? esc(syncFehler) + ' – ' : ''}Zuletzt abgeglichen: ${esc(zeit)}${syncLaeuft ? ' · läuft gerade …' : ''}</div>
+    <p>Änderungen werden automatisch nach wenigen Sekunden übertragen und beim Öffnen der App abgeholt.</p>
+    <div class="knoepfe"><button class="btn zwei" id="sync-jetzt" type="button">🔄 Jetzt abgleichen</button><button class="btn zwei" id="sync-trennen" type="button">Trennen</button></div>`;
+  $('sync-jetzt').onclick = () => syncJetzt();
+  $('sync-trennen').onclick = ev => { if(!ev.target.dataset.sicher){ ev.target.dataset.sicher = '1'; ev.target.textContent = 'Wirklich trennen?'; return; } ghToken = ''; gistId = ''; try { localStorage.removeItem('filmarchiv-gh-token'); localStorage.removeItem('filmarchiv-gist-id'); } catch(e){} syncAnzeigen(); toast('Sync getrennt (Daten bleiben auf diesem Gerät)'); };
+}
+async function syncJetzt(){
+  if(!ghToken) return;
+  if(syncLaeuft){ syncNochmal = true; return; }
+  syncLaeuft = true; syncAnzeigen();
+  try {
+    if(!gistId){ gistId = await gistSuchen(); ablegen('filmarchiv-gist-id', gistId); }
+    const fremd = await gistLesen();
+    if(zusammenfuehren(fremd)){ neuIndex(); sichern(true); ansichtNeu(); }
+    await gh('/gists/' + gistId, {method:'PATCH', body: JSON.stringify({files:{'filmarchiv.json':{content: JSON.stringify(paket())}}})});
+    syncZuletzt = Date.now(); ablegen('filmarchiv-sync-zeit', syncZuletzt); syncFehler = '';
+  } catch(e){
+    syncFehler = String(e.message||e).includes('401') ? 'Der GitHub-Code ist ungültig oder abgelaufen' : String(e.message||e).includes('404') ? 'Gist nicht gefunden, wird neu angelegt' : 'Keine Verbindung';
+    if(String(e.message).includes('404')){ gistId = ''; ablegen('filmarchiv-gist-id', ''); }
+  } finally {
+    syncLaeuft = false; syncAnzeigen();
+    if(syncNochmal){ syncNochmal = false; syncBald(); }
+  }
+}
+syncBald = () => { if(!ghToken) return; clearTimeout(syncTimer); syncTimer = setTimeout(syncJetzt, 3000); syncAnzeigen(); };
+function ansichtNeu(){
+  if($('detail').classList.contains('an')) return;
+  if(aktuelleSeite==='gesehen') zeigeGesehen(); else if(aktuelleSeite==='merken') zeigeListen(); else if(aktuelleSeite==='stat') zeigeStatistik(); else if(aktuelleSeite==='suche' && !$('q').value.trim()) zeigeSuche();
+}
+document.addEventListener('visibilitychange', () => { if(document.visibilityState==='visible'){ if(Date.now() - syncZuletzt > 20000) syncJetzt(); neuigkeitenPruefen(false); } });
+
+/* ===================== HELL / DUNKEL ===================== */
+function themaSetzen(t){
+  document.documentElement.dataset.thema = t;
+  $('thema-knopf').textContent = t==='hell' ? '🌙' : '☀️';
+  $('thema-knopf').setAttribute('aria-label', t==='hell' ? 'Auf Dunkel umschalten' : 'Auf Hell umschalten');
+  document.querySelector('meta[name="theme-color"]').content = t==='hell' ? '#f4f4f7' : '#0f0f14';
+}
+themaSetzen(document.documentElement.dataset.thema || 'dunkel');
+$('thema-knopf').addEventListener('click', () => { const t = document.documentElement.dataset.thema==='hell' ? 'dunkel' : 'hell'; themaSetzen(t); ablegen('filmarchiv-thema', t); });
+
+/* ===================== EINSTELLUNGEN-SEITE ===================== */
+function zeigeEinst(){ $('tmdb-key').value = tmdbKey; zeigeAbos(); vervollstAnzeigen(); syncAnzeigen(); }
+
+
 if(location.hash==='#titel') history.replaceState(null,'',location.pathname + location.search);
-hinweisSchluessel(); zeigeSuche();
+// Einmalig: importierte Netflix-Folgen zu Serien bündeln (vorher Sicherung anlegen)
+if(!lade('filmarchiv-aufgeraeumt-v2', false)){
+  try { if(liste.length && !localStorage.getItem('filmarchiv-sicherung-vor-v2')) localStorage.setItem('filmarchiv-sicherung-vor-v2', JSON.stringify(liste)); } catch(e){}
+  try { aufraeumen(); } catch(e){ console.error(e); }
+  ablegen('filmarchiv-aufgeraeumt-v2', true);
+}
+hinweisSchluessel(); newsPunkt(); syncAnzeigen(); zeigeSuche();
+if(ghToken) syncJetzt();
+setTimeout(()=>neuigkeitenPruefen(false), 4000);
 })();
 </script>
 </body>
